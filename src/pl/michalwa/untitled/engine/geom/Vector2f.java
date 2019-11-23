@@ -123,6 +123,18 @@ public class Vector2f
 	}
 	
 	/**
+	 * Returns the distance between the terminal points of the two vectors
+	 *
+	 * @param other the other vector
+	 *
+	 * @return the distance between the terminal point of this vector and the given vector
+	 */
+	public float distanceTo(Vector2f other)
+	{
+		return other.sub(this).mag();
+	}
+	
+	/**
 	 * Returns a normalized copy of this vector, one that has the same direction
 	 * but a magnitude of 1.
 	 *
@@ -144,5 +156,50 @@ public class Vector2f
 	{
 		// b * ((a * b) / |b|^2)
 		return other.mult(this.dot(other) / (other.x * other.x + other.y * other.y));
+	}
+	
+	/**
+	 * Returns a new {@link Vector2f} that has the same coordinates as this vector,
+	 * but cast to integers
+	 *
+	 * @return this vector as {@link Vector2f}
+	 */
+	public Vector2f toInt()
+	{
+		return new Vector2f((int) this.x, (int) this.y);
+	}
+	
+	/**
+	 * Returns {@code true} in any of the following cases:<ul>
+	 *     <li>{@code this.equals(obj)} return {@code true}</li>
+	 *     <li>the given object is a {@link Vector2f} and its coordinates
+	 *     are equal to the cooridnates of this vector</li>
+	 *     <li>the given object is a {@link Vector2i} and its coordinates
+	 *     are equal to the coordinates of this vector</li>
+	 * </ul>
+	 * Returns {@code false} otherwise.
+	 *
+	 * @param obj the object to compare
+	 *
+	 * @return whether the two objects are equal
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj)
+			
+			|| (obj instanceof Vector2f
+			&& this.x == ((Vector2f) obj).x
+			&& this.y == ((Vector2f) obj).y)
+			
+			|| (obj instanceof Vector2i
+			&& this.x == ((Vector2i) obj).x
+			&& this.y == ((Vector2i) obj).y);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "[" + this.x + ", " + this.y + "]";
 	}
 }

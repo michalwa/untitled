@@ -5,6 +5,8 @@ package pl.michalwa.untitled.engine.geom;
  */
 public class Vector2i
 {
+	public static final Vector2i ZERO = new Vector2i(0, 0);
+	
 	/**
 	 * The X coordinate
 	 */
@@ -74,5 +76,47 @@ public class Vector2i
 	public Vector2i div(int k)
 	{
 		return new Vector2i(this.x / k, this.y / k);
+	}
+	
+	/**
+	 * Returns {@code true} in any of the following cases:<ul>
+	 *     <li>{@code this.equals(obj)} return {@code true}</li>
+	 *     <li>the given object is a {@link Vector2i} and its coordinates are equal to the cooridnates of this vector</li>
+	 *     <li>the given object is a {@link Vector2f} and its coordinates are equal to the coordinates of this vector</li>
+	 * </ul>
+	 * Returns {@code false} otherwise.
+	 *
+	 * @param obj the object to compare
+	 *
+	 * @return whether the two objects are equal
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj)
+			
+			|| (obj instanceof Vector2i
+			&& this.x == ((Vector2i) obj).x
+			&& this.y == ((Vector2i) obj).y)
+			
+			|| (obj instanceof Vector2f
+			&& this.x == ((Vector2f) obj).x
+			&& this.y == ((Vector2f) obj).y);
+	}
+	
+	/**
+	 * Returns a new {@link Vector2f} that has the same coordinates as this vector
+	 *
+	 * @return this vector as {@link Vector2f}
+	 */
+	public Vector2f toFloat()
+	{
+		return new Vector2f(this.x, this.y);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "[" + this.x + ", " + this.y + "]";
 	}
 }

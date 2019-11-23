@@ -49,4 +49,10 @@ public class Pair<T1, T2>
 	{
 		return second;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "(" + first + ", " + second + ")";
+	}
 }

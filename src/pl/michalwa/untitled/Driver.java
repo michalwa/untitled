@@ -12,6 +12,8 @@ import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.GraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.image.Image;
 import pl.michalwa.untitled.engine.graphics.image.ImageLoader;
+import pl.michalwa.untitled.engine.input.mouse.MouseInput;
+import pl.michalwa.untitled.engine.input.mouse.events.MouseButtonEvent;
 import pl.michalwa.untitled.engine.loop.GameLoop;
 import pl.michalwa.untitled.engine.loop.events.EverySecond;
 import pl.michalwa.untitled.engine.loop.events.Frame;
@@ -33,8 +35,9 @@ public class Driver
 			new AssetIndexParser(),
 			"assets",
 			"assets.xml");
+		MouseInput     mouse      = new MouseInput();
 		
-		Container.main.register(gameLoop, window, graphics, assetStore, assets);
+		Container.main.register(gameLoop, window, graphics, assetStore, assets, mouse);
 		Container.main.initialize();
 		
 		// Register asset loaders
@@ -51,7 +54,7 @@ public class Driver
 		Color bgColor = new Color("2d1b00");
 		gameLoop.events.subscribe(Frame.class, event -> {
 			try {
-				Graphics2D gfx = Container.main.require(GraphicsDriver.class).getGraphics();
+				Graphics2D gfx = graphics.getGraphics();
 				gfx.setColor(bgColor.toAWTColor());
 				gfx.fillRect(0, 0, width, height);
 				graphics.display();
@@ -59,6 +62,14 @@ public class Driver
 				e.printStackTrace();
 			}
 		});
+		
+		// Log input
+		/* mouse.position.subscribe(
+			(prev, pos) -> System.out.println("Mouse cursor moved to " + pos)); */
+		mouse.wheel.subscribe(
+			(prev, pos) -> System.out.println("Mouse wheel scrolled to " + pos));
+		mouse.subscribe(MouseButtonEvent.class,
+			System.out::println);
 		
 		// Log TPS and FPS every second
 		gameLoop.events.subscribe(EverySecond.class,

@@ -36,7 +36,8 @@ public class EventDispatcher
 	 */
 	public <T extends Event> void subscribe(Class<T> type, EventSubscriber<T> subscriber)
 	{
-		subscribers.add(new Pair<>(type, subscriber));
+		Pair<Class<? extends Event>, EventSubscriber<? extends Event>> pair = new Pair<>(type, subscriber);
+		if(!subscribers.contains(pair)) subscribers.add(pair);
 	}
 	
 	/**
