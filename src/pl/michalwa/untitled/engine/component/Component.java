@@ -20,6 +20,8 @@ public interface Component
 	 * This method is meant to perform initialization that involves other components
 	 *
 	 * @param container the container where this component is being initialized
+	 *
+	 * @throws ComponentInitializationException if the initialization fails
 	 */
 	void initialize(Container container) throws ComponentInitializationException;
 }

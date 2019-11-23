@@ -52,7 +52,7 @@ public class Container
 	public <T extends Component> Optional<T> get(Class<T> type)
 	{
 		return components.entrySet().stream()
-			.filter(entry -> entry.getKey().isAssignableFrom(type))
+			.filter(entry -> type.isAssignableFrom(entry.getKey()))
 			.map(entry -> (T) entry.getValue())  // "unchecked" cast
 			.findFirst();
 	}
@@ -64,8 +64,10 @@ public class Container
 	 * @param type the type of the component to return
 	 *
 	 * @return the component of the specified type
+	 *
+	 * @throws MissingComponentException if the requested component is not registered
 	 */
-	public <T extends Component> T require(Class<T> type) throws MissingComponentException
+	public <T extends Component> T require(Class<T> type)
 	{
 		Optional<T> opt = get(type);
 		if(opt.isPresent()) return opt.get();
@@ -86,7 +88,6 @@ public class Container
 	{
 		// For building the initialization stack later
 		Set<Component> toTraverse = new HashSet<>(components.values());
-		Set<Component> traversed = new HashSet<>();
 		
 		// Collect dependencies
 		Map<Component, List<Component>> resolvedDeps = new HashMap<>();
@@ -123,16 +124,14 @@ public class Container
 		Stack<Component> stack = new Stack<>();
 		while(!toTraverse.isEmpty()) {
 			for(Component component : new HashSet<>(toTraverse)) {
-				if(traversed.contains(component)) {
-					throw new DependencyLoopException("Component " + component + " requires itself as a dependency");
-				}
-				
+				stack.remove(component);
 				stack.push(component);
 				toTraverse.addAll(resolvedDeps.get(component));
 				toTraverse.remove(component);
-				traversed.add(component);
 			}
 		}
+		
+		// TODO: Detect dependency loops
 		
 		// Run initialization
 		while(!stack.empty()) {

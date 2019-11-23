@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
-import pl.michalwa.untitled.engine.component.MissingComponentException;
 import pl.michalwa.untitled.engine.xml.XML;
 
 /**
@@ -167,6 +166,6 @@ public class Assets implements Component
 	@Override
 	public void initialize(Container container)
 	{
-		this.store = container.get(AssetStore.class).orElse(null);
+		this.store = container.require(AssetStore.class);
 	}
 }

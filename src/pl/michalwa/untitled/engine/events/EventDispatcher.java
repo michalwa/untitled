@@ -3,8 +3,8 @@ package pl.michalwa.untitled.engine.events;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import pl.michalwa.untitled.engine.utils.struct.Pair;
 import pl.michalwa.untitled.engine.utils.collections.ReverseListIterator;
+import pl.michalwa.untitled.engine.utils.struct.Pair;
 
 /**
  * Dispatches events allowing other classes to subscribe and handle them

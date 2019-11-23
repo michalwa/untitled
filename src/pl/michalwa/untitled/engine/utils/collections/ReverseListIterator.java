@@ -1,7 +1,7 @@
 package pl.michalwa.untitled.engine.utils.collections;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 /**

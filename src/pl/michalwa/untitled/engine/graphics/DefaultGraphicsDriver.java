@@ -52,10 +52,8 @@ public class DefaultGraphicsDriver implements GraphicsDriver
 	@Override
 	public void initialize(Container container)
 	{
-		container.get(Window.class).ifPresent(window -> {
-			Canvas canvas = window.getCanvas();
-			canvas.createBufferStrategy(3);  // use triple buffering
-			bs = canvas.getBufferStrategy();
-		});
+		Canvas canvas = container.require(Window.class).getCanvas();
+		canvas.createBufferStrategy(3);  // use triple buffering
+		bs = canvas.getBufferStrategy();
 	}
 }

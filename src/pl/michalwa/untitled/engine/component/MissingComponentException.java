@@ -3,7 +3,7 @@ package pl.michalwa.untitled.engine.component;
 /**
  * Thrown by {@link Container} if a required component is missing
  */
-public class MissingComponentException extends Exception
+public class MissingComponentException extends RuntimeException
 {
 	public MissingComponentException() {}
 	

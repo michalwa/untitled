@@ -1,6 +1,5 @@
 package pl.michalwa.untitled;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import pl.michalwa.untitled.engine.assets.Asset;
 import pl.michalwa.untitled.engine.assets.AssetIndexParser;

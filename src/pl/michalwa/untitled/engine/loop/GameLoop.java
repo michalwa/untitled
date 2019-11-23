@@ -3,10 +3,10 @@ package pl.michalwa.untitled.engine.loop;
 import java.util.Set;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
+import pl.michalwa.untitled.engine.events.EventDispatcher;
 import pl.michalwa.untitled.engine.loop.events.EverySecond;
 import pl.michalwa.untitled.engine.loop.events.Frame;
 import pl.michalwa.untitled.engine.loop.events.Tick;
-import pl.michalwa.untitled.engine.events.EventDispatcher;
 
 /**
  * Responsible for running the game in a loop

@@ -10,7 +10,7 @@ public class WindowFocusEvent extends Event
 	/**
 	 * Whether the window gained or lost focus
 	 */
-	private final boolean focused;
+	public final boolean focused;
 	
 	/**
 	 * Constructs a new {@link WindowFocusEvent}
@@ -26,16 +26,5 @@ public class WindowFocusEvent extends Event
 	public String getMessage()
 	{
 		return focused ? "Window gained focus" : "Window lost focus";
-	}
-	
-	/**
-	 * Returns {@code true} if the event indicated the window gaining focus or
-	 * {@code false} if the window lost focus.
-	 *
-	 * @return whether the window gained or lost focus
-	 */
-	public boolean focused()
-	{
-		return focused;
 	}
 }
