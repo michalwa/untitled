@@ -6,6 +6,7 @@ import java.util.Set;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.events.EventDispatcher;
+import pl.michalwa.untitled.engine.events.EventSubscriber;
 import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.input.mouse.events.MouseClickedEvent;
 import pl.michalwa.untitled.engine.input.mouse.events.MousePressedEvent;
@@ -14,7 +15,18 @@ import pl.michalwa.untitled.engine.utils.struct.Observable;
 import pl.michalwa.untitled.engine.window.Window;
 
 /**
- * Attaches a mouse input listener to the game window and dispatches mouse events
+ * Attaches a mouse input listener to the game window and dispatches mouse events.
+ *
+ * <p>
+ * Mouse button events can be subscribed to with {@link MouseInput#subscribe(Class, EventSubscriber)}
+ * passing {@link pl.michalwa.untitled.engine.input.mouse.events.MouseButtonEvent MouseButtonEvent.class}
+ * or one of its subclasses as the event type parameter.
+ * </p>
+ *
+ * <p>
+ * Mouse movement and mouse wheel rotation can be detected by subscribing to one of
+ * {@link MouseInput#position} or {@link MouseInput#wheel} observables and listening for changes.
+ * </p>
  */
 public class MouseInput extends EventDispatcher implements
 	Component,

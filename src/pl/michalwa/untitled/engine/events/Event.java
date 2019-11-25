@@ -25,7 +25,7 @@ public abstract class Event
 	@Override
 	public String toString()
 	{
-		return getMessage();
+		return getClass().getSimpleName() + ": " + getMessage();
 	}
 	
 	/**

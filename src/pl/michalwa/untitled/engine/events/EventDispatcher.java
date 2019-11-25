@@ -1,10 +1,12 @@
 package pl.michalwa.untitled.engine.events;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 import pl.michalwa.untitled.engine.utils.collections.ReverseListIterator;
-import pl.michalwa.untitled.engine.utils.struct.Pair;
 
 /**
  * Dispatches events allowing other classes to subscribe and handle them
@@ -17,7 +19,27 @@ public class EventDispatcher
 	 * For each pair the type argument of the {@link Class} type must be equal to or a subclass of
 	 * the type argument of the {@link EventSubscriber} type.
 	 */
-	private final List<Pair<Class<? extends Event>, EventSubscriber<? extends Event>>> subscribers;
+	private final List<SubscriberEntry<?>> subscribers;
+	
+	/**
+	 * If silenced, the dispatcher will not dispatch any events upon {@link #dispatch(Event)} calls.
+	 */
+	private boolean silenced = false;
+	
+	/**
+	 * The print writer to log events with
+	 */
+	private PrintStream log = null;
+	
+	/**
+	 * Whether to log events when silenced
+	 */
+	private boolean logSilenced = false;
+	
+	/**
+	 * The name of the event dispatcher (for logging events)
+	 */
+	private String name;
 	
 	/**
 	 * Constructs a new event dispatcher
@@ -25,19 +47,38 @@ public class EventDispatcher
 	public EventDispatcher()
 	{
 		subscribers = new ArrayList<>();
+		name = getClass().getSimpleName();
 	}
 	
 	/**
 	 * Subscribes the given subscriber for events of the specified type
 	 *
 	 * @param type the event {@link Class} to subscribe to
+	 * @param predicate a predicate to filter events that are supposed to be handled by the subscriber
 	 * @param subscriber the subscriber to handle the events
 	 * @param <T> the event type
 	 */
-	public <T extends Event> void subscribe(Class<T> type, EventSubscriber<T> subscriber)
+	public <T extends Event> void subscribe(
+		Class<? extends T> type,
+		Predicate<T>       predicate,
+		EventSubscriber<T> subscriber
+	) {
+		SubscriberEntry<T> entry = new SubscriberEntry<>(subscriber, type, predicate);
+		if(!subscribers.contains(entry)) subscribers.add(entry);
+	}
+	
+	/**
+	 * Subscribes the given subscriber for events of the specified type.
+	 * Same as calling {@link #subscribe(Class, Predicate, EventSubscriber)} but with a predicate
+	 * that always returns {@code true}.
+	 *
+	 * @param type the event {@link Class} to subscribe to
+	 * @param subscriber the subscriber to handle the events
+	 * @param <T> the event type
+	 */
+	public <T extends Event> void subscribe(Class<? extends T> type, EventSubscriber<T> subscriber)
 	{
-		Pair<Class<? extends Event>, EventSubscriber<? extends Event>> pair = new Pair<>(type, subscriber);
-		if(!subscribers.contains(pair)) subscribers.add(pair);
+		subscribe(type, e -> true, subscriber);
 	}
 	
 	/**
@@ -49,18 +90,121 @@ public class EventDispatcher
 	@SuppressWarnings("unchecked")
 	public <T extends Event> void dispatch(T event)
 	{
+		if((!silenced || logSilenced) && log != null) {
+			// [DispatcherName] (silenced) Event: Message...
+			String namePrefix = name != null ? "[" + name + "] " : "";
+			String silencedIndication = silenced ? "(silenced) " : "";
+			log.println(namePrefix + silencedIndication + event);
+		}
+		
+		if(silenced) return;
+		
 		event.source = this;
 		
 		// Iterate in reverse so that subscribers added earlier have less priority
 		// In case an event gets consumed by a subscriber we want the subscribers
 		// registered before it not to recieve the event
-		Iterator<Pair<Class<? extends Event>, EventSubscriber<? extends Event>>> iterator = new ReverseListIterator<>(subscribers);
+		Iterator<SubscriberEntry<?>> iterator = new ReverseListIterator<>(subscribers);
 		while(iterator.hasNext() && !event.consumed) {
-			final Pair<Class<? extends Event>, EventSubscriber<? extends Event>> pair = iterator.next();
+			SubscriberEntry<?> entry = iterator.next();
 			
-			if(pair.getFirst().isInstance(event)) {
-				((EventSubscriber<? super T>) pair.getSecond()).on(event);  // "unchecked" cast
+			if(entry.eventType.isInstance(event)) {
+				SubscriberEntry<? super T> castEntry = (SubscriberEntry<? super T>) entry;  // "unchecked" cast
+				if(castEntry.predicate.test(event)) {
+					castEntry.subscriber.on(event);
+				}
 			}
+		}
+	}
+	
+	/**
+	 * If silenced, the dispatcher will not dispatch any events upon {@link #dispatch(Event)} calls.
+	 *
+	 * @param silenced whether to silence this event dispatcher
+	 */
+	public void setSilenced(boolean silenced)
+	{
+		this.silenced = silenced;
+	}
+	
+	/**
+	 * If a print stream is set as output, all events will be printed to it
+	 * before being dispatched.
+	 *
+	 * @param output the print stream to log events with
+	 * @param logSilenced whether to log events when silenced
+	 */
+	public void setOutput(PrintStream output, boolean logSilenced)
+	{
+		log = output;
+		this.logSilenced = logSilenced;
+	}
+	
+	/**
+	 * Sets the name of this event dispatcher used for logging purposes
+	 *
+	 * @param name the new name of this event dispatcher
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	/**
+	 * Encapsulates an entry in {@link #subscribers}
+	 */
+	private static class SubscriberEntry<T extends Event>
+	{
+		/**
+		 * The subscriber
+		 */
+		private final EventSubscriber<T> subscriber;
+		
+		/**
+		 * The event type the subscriber is subscribed to
+		 */
+		private final Class<? extends T> eventType;
+		
+		/**
+		 * The predicate to filter incoming events
+		 */
+		private final Predicate<T> predicate;
+		
+		/**
+		 * Constructs a new entry
+		 *
+		 * @param subscriber the subscriber (handler)
+		 * @param eventType the event type the subscriber is subscribed to
+		 * @param predicate the predicate to filter incoming events
+		 */
+		SubscriberEntry(
+			EventSubscriber<T> subscriber,
+			Class<? extends T> eventType,
+			Predicate<T>       predicate
+		) {
+			this.subscriber = subscriber;
+			this.eventType  = eventType;
+			this.predicate  = predicate;
+		}
+		
+		/**
+		 * Returns {@code true} if {@code super.equals(obj)} returns {@code true}
+		 * or if all of the values of this entry compared to the values of the given entry
+		 * with {@link Objects#equals(Object, Object)} return {@code true}.
+		 *
+		 * @param obj the object to compare
+		 *
+		 * @return whether the objects are equal
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			return super.equals(obj)
+				
+				|| (obj instanceof SubscriberEntry
+				&& Objects.equals(((SubscriberEntry) obj).subscriber, subscriber)
+				&& Objects.equals(((SubscriberEntry) obj).eventType,  eventType)
+				&& Objects.equals(((SubscriberEntry) obj).predicate,  predicate));
 		}
 	}
 }

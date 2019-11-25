@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 /**
  * Utility extensions to the Stream API
  */
-public class StreamUtils
+public abstract class StreamUtils
 {
 	/**
 	 * Returns a predicate that can be used with {@link java.util.stream.Stream#filter(Predicate)}

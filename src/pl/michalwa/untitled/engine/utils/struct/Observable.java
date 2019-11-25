@@ -78,6 +78,7 @@ public class Observable<T>
 	 *
 	 * @param <T> the type of the observable value
 	 */
+	@FunctionalInterface
 	public interface Observer<T>
 	{
 		/**

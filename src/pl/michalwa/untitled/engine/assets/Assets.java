@@ -71,7 +71,7 @@ public class Assets implements Component
 	 * @param type the asset type which the loader should load
 	 * @param loader the loader
 	 */
-	public void registerLoader(String type, Loader<? extends Asset> loader)
+	public void registerLoader(String type, Loader<?> loader)
 	{
 		loaders.put(type, loader);
 	}
@@ -87,40 +87,57 @@ public class Assets implements Component
 	 */
 	public Optional<Asset> get(String id)
 	{
-		try {
-			return Optional.of(require(id));
-		} catch(AssetLoaderException e) {
-			return Optional.empty();
+		if(store == null) {
+			throw new IllegalStateException("Assets component not initialized");
 		}
+		
+		Optional<Asset> opt = store.get(id);
+		if(opt.isPresent()) return opt;
+		
+		try {
+			for(AssetIndexParser.Entry entry : indexEntries) {
+				if(entry.id.equals(id)) {
+					Asset asset = loadAsset(entry.type, assetPath(entry.source));
+					store.add(id, asset);
+					return Optional.ofNullable(asset);
+				}
+			}
+		} catch(AssetLoaderException e) {
+			e.printStackTrace();
+		}
+		
+		return Optional.empty();
 	}
 	
 	/**
-	 * Same as {@link #get(String)} but will throw an exception if the asset
+	 * Same as {@link #get(String)} but will throw a runtime exception if the asset
 	 * is not defined or can't be loaded
 	 *
 	 * @param id the ID of the asset to return
 	 * @return the asset
-	 *
-	 * @throws AssetLoaderException if the asset is not defined or can't be loaded
 	 */
-	public Asset require(String id) throws AssetLoaderException
+	public Asset require(String id)
 	{
 		if(store == null) {
-			throw new IllegalStateException("Asset component not initialized");
+			throw new IllegalStateException("Assets component not initialized");
 		}
 		
 		Optional<Asset> opt = store.get(id);
 		if(opt.isPresent()) return opt.get();
 		
-		for(AssetIndexParser.Entry entry : indexEntries) {
-			if(entry.id.equals(id)) {
-				Asset asset = loadAsset(entry.type, assetPath(entry.source));
-				store.add(id, asset);
-				return asset;
+		try {
+			for(AssetIndexParser.Entry entry : indexEntries) {
+				if(entry.id.equals(id)) {
+					Asset asset = loadAsset(entry.type, assetPath(entry.source));
+					store.add(id, asset);
+					return asset;
+				}
 			}
+		} catch(AssetLoaderException e) {
+			throw new RuntimeException(e);
 		}
 		
-		throw new AssetLoaderException("Undefined asset: " + id);
+		throw new IllegalStateException("Undefined asset: " + id);
 	}
 	
 	/**

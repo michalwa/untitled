@@ -10,12 +10,12 @@ public class Vector2f
 	/**
 	 * The X coordinate
 	 */
-	final float x;
+	public final float x;
 	
 	/**
 	 * The Y coordinate
 	 */
-	final float y;
+	public final float y;
 	
 	/**
 	 * Constructs a new 2d vector with the given coordinates

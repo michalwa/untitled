@@ -10,12 +10,12 @@ public class Vector2i
 	/**
 	 * The X coordinate
 	 */
-	final int x;
+	public final int x;
 	
 	/**
 	 * The y coordinate
 	 */
-	final int y;
+	public final int y;
 	
 	/**
 	 * Constructs a new 2d vector with the given coordinates

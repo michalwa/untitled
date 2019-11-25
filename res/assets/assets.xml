@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <assets>
-    <asset id="icon" type="image/png" src="placeholder_icon.png" />
+    <asset id="icon" type="image" src="placeholder_icon.png" />
+    <asset id="colors" type="config" src="colors.properties" />
 </assets>

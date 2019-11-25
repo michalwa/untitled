@@ -4,6 +4,9 @@ import pl.michalwa.untitled.engine.events.Event;
 import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.input.mouse.MouseInput;
 
+/**
+ * Dispatched when mouse button input is recieved
+ */
 public abstract class MouseButtonEvent extends Event
 {
 	/**
@@ -22,7 +25,7 @@ public abstract class MouseButtonEvent extends Event
 	 * @param point the point on the game canvas where the event occured
 	 * @param button the button which was involved in the event
 	 */
-	public MouseButtonEvent(Vector2i point, MouseInput.Button button)
+	MouseButtonEvent(Vector2i point, MouseInput.Button button)
 	{
 		this.point = point;
 		this.button = button;

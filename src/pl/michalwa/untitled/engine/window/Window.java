@@ -14,6 +14,7 @@ import pl.michalwa.untitled.engine.events.Event;
 import pl.michalwa.untitled.engine.events.EventDispatcher;
 import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.image.Image;
+import pl.michalwa.untitled.engine.runtime.Application;
 import pl.michalwa.untitled.engine.window.events.WindowClosingEvent;
 import pl.michalwa.untitled.engine.window.events.WindowFocusEvent;
 
@@ -22,6 +23,11 @@ import pl.michalwa.untitled.engine.window.events.WindowFocusEvent;
  */
 public class Window extends EventDispatcher implements Component, WindowListener
 {
+	/**
+	 * The application component or null
+	 */
+	private Application app;
+	
 	/**
 	 * The actual window driver
 	 */
@@ -148,7 +154,11 @@ public class Window extends EventDispatcher implements Component, WindowListener
 		
 		// Exist the entire application if event not consumed
 		if(!event.isConsumed()) {
-			System.exit(0);
+			if(app != null) {
+				app.quit();
+			} else {
+				System.exit(0);
+			}
 		}
 	}
 	
@@ -156,7 +166,10 @@ public class Window extends EventDispatcher implements Component, WindowListener
 	public void getDependencies(Set<Class<? extends Component>> dependencies) {}
 	
 	@Override
-	public void initialize(Container container) {}
+	public void initialize(Container container)
+	{
+		app = container.get(Application.class).orElse(null);
+	}
 	
 	@Override
 	public void windowActivated(WindowEvent e)
