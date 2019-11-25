@@ -19,11 +19,6 @@ public class Assets implements Component
 	public static final String XML_TYPE = "text/xml";
 	
 	/**
-	 * The root asset directory
-	 */
-	private final String rootDir;
-	
-	/**
 	 * Asset definitions parsed from the asset index document
 	 */
 	private final List<AssetIndexParser.Entry> indexEntries;
@@ -39,7 +34,7 @@ public class Assets implements Component
 	private final Map<String, Loader<?>> loaders;
 	
 	/**
-	 * Constructs an asset loader and parses the given asset index.
+	 * Constructs an asset loader and parses the specified asset index.
 	 * The passed {@code Loader<XML>} is immediately registered as the loader for "text/xml" type assets
 	 *
 	 * @param xmlLoader the loader responsible for loading XML documents
@@ -48,21 +43,27 @@ public class Assets implements Component
 	 * @param indexFilename the name of the asset index file in the asset directory
 	 *
 	 * @throws AssetLoaderException if {@code xmlLoader} throws {@link AssetLoaderException}
+	 * @throws AssetIndexException if {@code parser} throws {@link AssetIndexException}
 	 */
 	public Assets(
 		Loader<XML>      xmlLoader,
 		AssetIndexParser parser,
 		String           rootDir,
 		String           indexFilename
-	) throws AssetLoaderException
+	) throws
+		AssetLoaderException,
+		AssetIndexException
 	{
-		this.rootDir = rootDir;
-		
 		loaders = new HashMap<>();
 		registerLoader(XML_TYPE, xmlLoader);
-		
-		XML index = (XML) loadAsset(XML_TYPE, assetPath(indexFilename));
-		indexEntries = parser.parse(index.getDocument());
+
+		AssetIndexParser.Entry definition = new AssetIndexParser.Entry(
+				null,
+				XML_TYPE,
+				Collections.singletonList(new Source(rootDir, indexFilename)));
+
+		XML index = (XML) loadAsset(definition);
+		indexEntries = parser.parse(index.getDocument(), rootDir);
 	}
 	
 	/**
@@ -97,7 +98,7 @@ public class Assets implements Component
 		try {
 			for(AssetIndexParser.Entry entry : indexEntries) {
 				if(entry.id.equals(id)) {
-					Asset asset = loadAsset(entry.type, assetPath(entry.source));
+					Asset asset = loadAsset(entry);
 					store.add(id, asset);
 					return Optional.ofNullable(asset);
 				}
@@ -128,7 +129,7 @@ public class Assets implements Component
 		try {
 			for(AssetIndexParser.Entry entry : indexEntries) {
 				if(entry.id.equals(id)) {
-					Asset asset = loadAsset(entry.type, assetPath(entry.source));
+					Asset asset = loadAsset(entry);
 					store.add(id, asset);
 					return asset;
 				}
@@ -143,35 +144,15 @@ public class Assets implements Component
 	/**
 	 * Loads an asset using the appropriate loader
 	 *
-	 * @param type the type of the asset to load (canonical or simple class name)
-	 * @param path path to the file from which to load the asset
+	 * @param definition the asset index entry defining the asset to load
 	 */
-	private Asset loadAsset(String type, String path) throws AssetLoaderException
+	private Asset loadAsset(AssetIndexParser.Entry definition) throws AssetLoaderException
 	{
-		if(loaders.containsKey(type)) {
-			InputStream is = Assets.class.getResourceAsStream(path);
-			Asset asset = loaders.get(type).load(is);
-			try {
-				is.close();
-			} catch(IOException e) {
-				e.printStackTrace();  // when could this happen?
-			}
-			return asset;
+		if(loaders.containsKey(definition.type)) {
+			return loaders.get(definition.type).load(definition.sources);
 		} else {
-			throw new AssetLoaderException("No loader found for asset type: " + type);
+			throw new AssetLoaderException("No loader found for asset type: " + definition.type);
 		}
-	}
-	
-	/**
-	 * Returns the full path to the asset resource based on the given path
-	 * relative to the asset root directory
-	 *
-	 * @param path the asset resource path relative to the asset root directory
-	 * @return the full asset resource path
-	 */
-	private String assetPath(String path)
-	{
-		return "/" + Paths.get(rootDir, path);
 	}
 	
 	@Override

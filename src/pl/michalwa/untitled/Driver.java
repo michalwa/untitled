@@ -7,7 +7,6 @@ import pl.michalwa.untitled.engine.assets.AssetIndexParser;
 import pl.michalwa.untitled.engine.assets.AssetStore;
 import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.component.Container;
-import pl.michalwa.untitled.engine.component.MissingComponentException;
 import pl.michalwa.untitled.engine.config.Config;
 import pl.michalwa.untitled.engine.config.ConfigLoader;
 import pl.michalwa.untitled.engine.geom.Vector2i;
@@ -20,13 +19,11 @@ import pl.michalwa.untitled.engine.input.keyboard.Key;
 import pl.michalwa.untitled.engine.input.keyboard.KeyInput;
 import pl.michalwa.untitled.engine.input.keyboard.events.KeyEvent;
 import pl.michalwa.untitled.engine.input.mouse.MouseInput;
-import pl.michalwa.untitled.engine.input.mouse.events.MouseButtonEvent;
 import pl.michalwa.untitled.engine.loop.GameLoop;
 import pl.michalwa.untitled.engine.loop.events.EverySecond;
 import pl.michalwa.untitled.engine.loop.events.Frame;
 import pl.michalwa.untitled.engine.runtime.Application;
 import pl.michalwa.untitled.engine.window.Window;
-import pl.michalwa.untitled.engine.window.events.WindowEvent;
 import pl.michalwa.untitled.engine.xml.XMLLoader;
 
 public class Driver
@@ -56,7 +53,7 @@ public class Driver
 		
 		// Set up window
 		int width = 640, height = 480;
-		window.setOutput(System.out, false);
+		window.setEventLogStream(System.out);
 		window.setSize(width, height);
 		Asset icon = assets.require("icon");
 		if(icon instanceof Image) window.setIcon((Image) icon);
@@ -99,7 +96,7 @@ public class Driver
 			event -> System.out.println("TPS: " + gameLoop.getTPS() + ", FPS: " + gameLoop.getFPS()));
 		
 		// Start the application
-		app.setOutput(System.out, false);
+		app.setEventLogStream(System.out);
 		if(app.start()) {
 			window.setVisible(true);
 			gameLoop.start();

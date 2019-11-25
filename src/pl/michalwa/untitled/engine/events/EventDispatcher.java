@@ -22,19 +22,9 @@ public class EventDispatcher
 	private final List<SubscriberEntry<?>> subscribers;
 	
 	/**
-	 * If silenced, the dispatcher will not dispatch any events upon {@link #dispatch(Event)} calls.
-	 */
-	private boolean silenced = false;
-	
-	/**
 	 * The print writer to log events with
 	 */
 	private PrintStream log = null;
-	
-	/**
-	 * Whether to log events when silenced
-	 */
-	private boolean logSilenced = false;
 	
 	/**
 	 * The name of the event dispatcher (for logging events)
@@ -90,16 +80,12 @@ public class EventDispatcher
 	@SuppressWarnings("unchecked")
 	public <T extends Event> void dispatch(T event)
 	{
-		if((!silenced || logSilenced) && log != null) {
-			// [DispatcherName] (silenced) Event: Message...
-			String namePrefix = name != null ? "[" + name + "] " : "";
-			String silencedIndication = silenced ? "(silenced) " : "";
-			log.println(namePrefix + silencedIndication + event);
-		}
-		
-		if(silenced) return;
-		
 		event.source = this;
+		
+		if(log != null) {
+			String namePrefix = name != null ? "[" + name + "] " : "";
+			log.println(namePrefix + event);
+		}
 		
 		// Iterate in reverse so that subscribers added earlier have less priority
 		// In case an event gets consumed by a subscriber we want the subscribers
@@ -118,26 +104,14 @@ public class EventDispatcher
 	}
 	
 	/**
-	 * If silenced, the dispatcher will not dispatch any events upon {@link #dispatch(Event)} calls.
-	 *
-	 * @param silenced whether to silence this event dispatcher
-	 */
-	public void setSilenced(boolean silenced)
-	{
-		this.silenced = silenced;
-	}
-	
-	/**
-	 * If a print stream is set as output, all events will be printed to it
+	 * If a print stream is set as the event log stream, all events will be printed to it
 	 * before being dispatched.
 	 *
 	 * @param output the print stream to log events with
-	 * @param logSilenced whether to log events when silenced
 	 */
-	public void setOutput(PrintStream output, boolean logSilenced)
+	public void setEventLogStream(PrintStream output)
 	{
 		log = output;
-		this.logSilenced = logSilenced;
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 package pl.michalwa.untitled.engine.assets;
 
-import java.io.InputStream;
+import java.util.List;
 
 /**
  * Responsible for loading a certain type of assets
@@ -12,8 +12,8 @@ public interface Loader<T extends Asset>
 	/**
 	 * Loads an asset of the appropriate type from the given input stream
 	 *
-	 * @param is the input stream to load the asset from
+	 * @param sources the input stream to load the asset from
 	 * @return the loaded asset
 	 */
-	T load(InputStream is) throws AssetLoaderException;
+	T load(List<Source> sources) throws AssetLoaderException;
 }
