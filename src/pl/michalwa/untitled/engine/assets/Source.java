@@ -11,9 +11,14 @@ import pl.michalwa.untitled.engine.utils.Strings;
 public class Source
 {
 	/**
+	 * The root asset directory
+	 */
+	private final String rootDir;
+	
+	/**
 	 * Path to the source file
 	 */
-	private final String path;
+	private final String file;
 	
 	/**
 	 * Constructs a new source file definition
@@ -23,7 +28,8 @@ public class Source
 	 */
 	Source(String rootDir, String file)
 	{
-		path = Strings.ensureStartsWith("/", Paths.get(rootDir, file).toString());
+		this.rootDir = rootDir;
+		this.file = file;
 	}
 	
 	/**
@@ -36,10 +42,21 @@ public class Source
 	 */
 	public InputStream open() throws NoSuchFileException
 	{
+		String path = Strings.ensureStartsWith("/", Paths.get(rootDir, file).toString());
 		InputStream is = Source.class.getResourceAsStream(path);
 		if(is == null) {
 			throw new NoSuchFileException(path, null, "Source file does not exist");
 		}
 		return is;
+	}
+	
+	/**
+	 * Returns the path to the source file relative to the root asset directory
+	 *
+	 * @return the path to the source file relative to the root asset directory
+	 */
+	public String getPath()
+	{
+		return file;
 	}
 }

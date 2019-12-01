@@ -16,11 +16,12 @@ public class XML extends Asset
 	/**
 	 * Constructs a new XML document wrapper
 	 *
+	 * @param id the ID of the asset
 	 * @param document the XML document
 	 */
-	XML(Document document)
+	XML(String id, Document document)
 	{
-		super(true);
+		super(id, true);
 		this.document = document;
 	}
 	

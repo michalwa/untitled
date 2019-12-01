@@ -16,11 +16,12 @@ public class Image extends Asset
 	/**
 	 * Constructs an image asset with the given image
 	 *
+	 * @param id the ID of the asset
 	 * @param image the image
 	 */
-	Image(BufferedImage image)
+	Image(String id, BufferedImage image)
 	{
-		super(true);
+		super(id, true);
 		this.image = image;
 	}
 	

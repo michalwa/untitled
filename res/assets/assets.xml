@@ -2,4 +2,5 @@
 <assets>
     <asset id="icon" type="image" src="placeholder_icon.png"/>
     <asset id="colors" type="config" src="colors.properties"/>
+    <asset id="cursors/pointer" type="cursor" src="cursors/pointer.properties"/>
 </assets>

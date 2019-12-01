@@ -2,6 +2,7 @@ package pl.michalwa.untitled.engine.input.keyboard;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
 import java.util.Set;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
@@ -16,6 +17,11 @@ import pl.michalwa.untitled.engine.window.Window;
  */
 public class KeyInput extends EventDispatcher implements Component, KeyListener
 {
+	/**
+	 * Contains keys that are currently being pressed down
+	 */
+	private final Set<Key> keysDown = new HashSet<>();
+	
 	@Override
 	public void getDependencies(Set<Class<? extends Component>> dependencies)
 	{
@@ -43,12 +49,32 @@ public class KeyInput extends EventDispatcher implements Component, KeyListener
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
-		dispatch(new KeyPressedEvent(Key.get(e.getKeyCode(), e.getKeyLocation())));
+		Key key = Key.get(e.getKeyCode(), e.getKeyLocation());
+		if(key == null) return;
+		if(keysDown.add(key)) {
+			dispatch(new KeyPressedEvent(key));
+		}
 	}
 	
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		dispatch(new KeyReleasedEvent(Key.get(e.getKeyCode(), e.getKeyLocation())));
+		Key key = Key.get(e.getKeyCode(), e.getKeyLocation());
+		if(key == null) return;
+		keysDown.remove(key);
+		dispatch(new KeyReleasedEvent(key));
+	}
+	
+	/**
+	 * Returns {@code true} if the specified key is currently being pressed down
+	 * or {@code false} otherwise
+	 *
+	 * @param key the key to tell the state of
+	 *
+	 * @return whether the specified key is currently being pressed down
+	 */
+	public boolean isDown(Key key)
+	{
+		return keysDown.contains(key);
 	}
 }

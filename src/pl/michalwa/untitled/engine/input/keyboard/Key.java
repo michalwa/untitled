@@ -1,6 +1,8 @@
 package pl.michalwa.untitled.engine.input.keyboard;
 
 import java.awt.event.KeyEvent;
+import java.util.Optional;
+import pl.michalwa.untitled.engine.component.Container;
 
 /**
  * Constants represent keys on a keyboard
@@ -82,17 +84,22 @@ public enum Key
 	CAPS_LOCK   (KeyEvent.VK_CAPS_LOCK,   -1),
 	ESCAPE      (KeyEvent.VK_ESCAPE,      -1),
 	SPACE       (KeyEvent.VK_SPACE,       -1),
-	PAGE_UP     (KeyEvent.VK_PAGE_UP,     -1),
-	PAGE_DOWN   (KeyEvent.VK_PAGE_DOWN,   -1),
+	INSERT      (KeyEvent.VK_INSERT,      -1),
+	DELETE      (KeyEvent.VK_DELETE,      -1),
 	HOME        (KeyEvent.VK_HOME,        -1),
 	END         (KeyEvent.VK_END,         -1),
+	PAGE_UP     (KeyEvent.VK_PAGE_UP,     -1),
+	PAGE_DOWN   (KeyEvent.VK_PAGE_DOWN,   -1),
 	SCROLL_LOCK (KeyEvent.VK_SCROLL_LOCK, -1),
 	
+	DEAD_TILDE    (KeyEvent.VK_DEAD_TILDE,    -1),
+	BACKTICK      (KeyEvent.VK_BACK_QUOTE,    -1),
 	COMMA         (KeyEvent.VK_COMMA,         -1),
 	MINUS         (KeyEvent.VK_MINUS,         -1),
 	PERIOD        (KeyEvent.VK_PERIOD,        -1),
 	SLASH         (KeyEvent.VK_SLASH,         -1),
 	SEMICOLON     (KeyEvent.VK_SEMICOLON,     -1),
+	QUOTE         (KeyEvent.VK_QUOTE,         -1),
 	EQUALS        (KeyEvent.VK_EQUALS,        -1),
 	OPEN_BRACKET  (KeyEvent.VK_OPEN_BRACKET,  -1),
 	CLOSE_BRACKET (KeyEvent.VK_CLOSE_BRACKET, -1),
@@ -109,9 +116,7 @@ public enum Key
 	F9  (KeyEvent.VK_F9,  -1),
 	F10 (KeyEvent.VK_F10, -1),
 	F11 (KeyEvent.VK_F11, -1),
-	F12 (KeyEvent.VK_F12, -1),
-	
-	UNDEFINED(KeyEvent.VK_UNDEFINED, -1);
+	F12 (KeyEvent.VK_F12, -1);
 	
 	/**
 	 * {@link java.awt.event.KeyEvent} key code
@@ -163,13 +168,31 @@ public enum Key
 	}
 	
 	/**
+	 * Returns {@code true} if the key is currently being pressed down or {@code false} otherwise.
+	 * If there is no {@link KeyInput} component registered in the {@link Container#main default container}
+	 * throws an {@link IllegalStateException}.
+	 *
+	 * @return whether the specified key is currently being pressed down
+	 *
+	 * @throws IllegalStateException if the key input component is not registered in the default container
+	 */
+	public boolean isDown()
+	{
+		Optional<KeyInput> opt = Container.main.get(KeyInput.class);
+		if(!opt.isPresent()) {
+			throw new IllegalStateException("KeyInput component not registered");
+		}
+		return opt.get().isDown(this);
+	}
+	
+	/**
 	 * Finds and returns the enum constant associated with the given values.
-	 * Returns {@link #UNDEFINED} if such a constant is not found.
+	 * Returns {@code null} if such a constant is not found.
 	 *
 	 * @param code the key code (one of {@link KeyEvent} {@code VK_*} constants)
 	 * @param location the key location constant value (one of {@link KeyEvent} {@code KEY_LOCATION_*} constants)
 	 *
-	 * @return the found {@link Key} enum constant or {@link #UNDEFINED}
+	 * @return the found {@link Key} enum constant or {@code null}
 	 */
 	public static Key get(int code, int location)
 	{
@@ -179,6 +202,6 @@ public enum Key
 			}
 		}
 		
-		return Key.UNDEFINED;
+		return null;
 	}
 }

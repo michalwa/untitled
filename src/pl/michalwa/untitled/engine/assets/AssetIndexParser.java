@@ -77,11 +77,10 @@ public class AssetIndexParser
 	 * Parses the asset index and returns all defined assets
 	 *
 	 * @param index the asset index XML document
-	 * @param rootDir the root asset directory
 	 */
-	public List<Entry> parse(Document index, String rootDir) throws AssetIndexException
+	public List<AssetIndexEntry> parse(Document index) throws AssetIndexException
 	{
-		List<Entry> entries = new ArrayList<>();
+		List<AssetIndexEntry> entries = new ArrayList<>();
 		
 		// Get root element
 		Element root = index.getDocumentElement();
@@ -114,9 +113,9 @@ public class AssetIndexParser
 			}
 			
 			// Check for source attribute
-			List<Source> sources = new ArrayList<>();
+			List<String> sources = new ArrayList<>();
 			if(child.hasAttribute(SOURCE_ATTR)) {
-				sources.add(new Source(rootDir, child.getAttribute(SOURCE_ATTR)));
+				sources.add(child.getAttribute(SOURCE_ATTR));
 			}
 			
 			// Parse source tags, if no source attribute is present
@@ -139,14 +138,14 @@ public class AssetIndexParser
 							"<" + SOURCE_TAG + "> tags must have an `" + SOURCE_ATTR + "` attribute");
 					}
 					
-					sources.add(new Source(rootDir, child2.getAttribute(SOURCE_ATTR)));
+					sources.add(child2.getAttribute(SOURCE_ATTR));
 					
 					childNode2 = childNode2.getNextSibling();
 				}
 			}
 			
 			// Parse entry
-			Entry entry = new Entry(
+			AssetIndexEntry entry = new AssetIndexEntry(
 				child.getAttribute(ID_ATTR),
 				child.getAttribute(TYPE_ATTR),
 				sources
@@ -160,40 +159,5 @@ public class AssetIndexParser
 		return entries.stream()
 			.filter(StreamUtils.distinctByKey(e -> e.id))
 			.collect(Collectors.toList());
-	}
-	
-	/**
-	 * An entry parsed from the asset index
-	 */
-	static class Entry
-	{
-		/**
-		 * The ID of the asset
-		 */
-		final String id;
-		
-		/**
-		 * The type of the asset
-		 */
-		final String type;
-		
-		/**
-		 * Source definitions
-		 */
-		final List<Source> sources;
-		
-		/**
-		 * Constructs a new asset index entry
-		 *
-		 * @param id the ID of the asset
-		 * @param type the type of the asset
-		 * @param sources source definitions
-		 */
-		public Entry(String id, String type, List<Source> sources)
-		{
-			this.id = id;
-			this.type = type;
-			this.sources = sources;
-		}
 	}
 }

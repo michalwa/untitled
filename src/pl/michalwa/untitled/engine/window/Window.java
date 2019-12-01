@@ -12,9 +12,10 @@ import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.events.Event;
 import pl.michalwa.untitled.engine.events.EventDispatcher;
-import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
+import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.graphics.image.Image;
 import pl.michalwa.untitled.engine.runtime.Application;
+import pl.michalwa.untitled.engine.window.cursor.Cursor;
 import pl.michalwa.untitled.engine.window.events.WindowClosingEvent;
 import pl.michalwa.untitled.engine.window.events.WindowFocusEvent;
 
@@ -37,11 +38,6 @@ public class Window extends EventDispatcher implements Component, WindowListener
 	 * The canvas where the game contents are drawn
 	 */
 	private final Canvas canvas;
-	
-	/**
-	 * The graphics driver for the canvas
-	 */
-	private DefaultGraphicsDriver graphicsDriver = null;
 	
 	/**
 	 * Constructs and initializes the game window
@@ -114,13 +110,15 @@ public class Window extends EventDispatcher implements Component, WindowListener
 	}
 	
 	/**
-	 * Returns the current size of the canvas
+	 * Returns a {@link Vector2i} representing the current size of the canvas,
+	 * where the X coordinate represents the width and the Y coordinate represents the height
 	 *
-	 * @return current canvas size
+	 * @return the current canvas size
 	 */
-	public Dimension getSize()
+	public Vector2i getSize()
 	{
-		return canvas.getSize();
+		Dimension size = canvas.getSize();
+		return new Vector2i(size.width, size.height);
 	}
 	
 	/**
@@ -131,6 +129,21 @@ public class Window extends EventDispatcher implements Component, WindowListener
 	public void setIcon(Image icon)
 	{
 		jframe.setIconImage(Optional.ofNullable(icon).map(Image::getImage).orElse(null));
+	}
+	
+	/**
+	 * Sets or removes a custom cursor. If either {@code cursor} or {@code hotSpot} is {@code null},
+	 * a default cursor is set.
+	 *
+	 * @param cursor the cursor to set
+	 */
+	public void setCursor(Cursor cursor)
+	{
+		if(cursor == null) {
+			canvas.setCursor(java.awt.Cursor.getDefaultCursor());
+		} else {
+			canvas.setCursor(cursor.getAWTCursor());
+		}
 	}
 	
 	/**

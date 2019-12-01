@@ -6,6 +6,11 @@ package pl.michalwa.untitled.engine.assets;
 public abstract class Asset
 {
 	/**
+	 * The ID of this asset ({@code null} if not set or not relevant)
+	 */
+	private final String id;
+	
+	/**
 	 * Whether this asset has been loaded from a resource
 	 */
 	private final boolean loaded;
@@ -13,12 +18,23 @@ public abstract class Asset
 	/**
 	 * Constructs an asset
 	 *
-	 * @param loaded whether this asset has been loaded from a resource
-	 *               or instantiated internally
+	 * @param id the ID of this asset (can be {@code null} if the asset was not loaded or the ID is not relevant)
+	 * @param loaded whether this asset has been loaded from a resource or instantiated internally
 	 */
-	protected Asset(boolean loaded)
+	protected Asset(String id, boolean loaded)
 	{
+		this.id = id;
 		this.loaded = loaded;
+	}
+	
+	/**
+	 * Returns the ID of this asset
+	 *
+	 * @return the ID of this asset
+	 */
+	public String getId()
+	{
+		return id;
 	}
 	
 	/**

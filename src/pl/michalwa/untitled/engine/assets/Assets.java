@@ -1,9 +1,7 @@
 package pl.michalwa.untitled.engine.assets;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.xml.XML;
@@ -16,12 +14,17 @@ public class Assets implements Component
 	/**
 	 * XML asset type name
 	 */
-	public static final String XML_TYPE = "text/xml";
+	public static final String XML_TYPE = "xml";
+	
+	/**
+	 * The root asset directory
+	 */
+	private final String rootDir;
 	
 	/**
 	 * Asset definitions parsed from the asset index document
 	 */
-	private final List<AssetIndexParser.Entry> indexEntries;
+	private final List<AssetIndexEntry> indexEntries;
 	
 	/**
 	 * Loaded asset store
@@ -54,16 +57,18 @@ public class Assets implements Component
 		AssetLoaderException,
 		AssetIndexException
 	{
+		this.rootDir = rootDir;
+		
 		loaders = new HashMap<>();
 		registerLoader(XML_TYPE, xmlLoader);
 
-		AssetIndexParser.Entry definition = new AssetIndexParser.Entry(
+		AssetIndexEntry definition = new AssetIndexEntry(
 				null,
 				XML_TYPE,
-				Collections.singletonList(new Source(rootDir, indexFilename)));
+				Collections.singletonList(indexFilename));
 
-		XML index = (XML) loadAsset(definition);
-		indexEntries = parser.parse(index.getDocument(), rootDir);
+		XML index = (XML) load(definition);
+		indexEntries = parser.parse(index.getDocument());
 	}
 	
 	/**
@@ -75,6 +80,18 @@ public class Assets implements Component
 	public void registerLoader(String type, Loader<?> loader)
 	{
 		loaders.put(type, loader);
+	}
+	
+	/**
+	 * Returns a registered loader for the specified asset type
+	 *
+	 * @param type the type of asset loader to return
+	 *
+	 * @return the loader or {@code null} if no such loader is registered
+	 */
+	public Loader<?> getLoader(String type)
+	{
+		return loaders.get(type);
 	}
 	
 	/**
@@ -96,9 +113,9 @@ public class Assets implements Component
 		if(opt.isPresent()) return opt;
 		
 		try {
-			for(AssetIndexParser.Entry entry : indexEntries) {
+			for(AssetIndexEntry entry : indexEntries) {
 				if(entry.id.equals(id)) {
-					Asset asset = loadAsset(entry);
+					Asset asset = load(entry);
 					store.add(id, asset);
 					return Optional.ofNullable(asset);
 				}
@@ -127,9 +144,9 @@ public class Assets implements Component
 		if(opt.isPresent()) return opt.get();
 		
 		try {
-			for(AssetIndexParser.Entry entry : indexEntries) {
+			for(AssetIndexEntry entry : indexEntries) {
 				if(entry.id.equals(id)) {
-					Asset asset = loadAsset(entry);
+					Asset asset = load(entry);
 					store.add(id, asset);
 					return asset;
 				}
@@ -142,17 +159,42 @@ public class Assets implements Component
 	}
 	
 	/**
-	 * Loads an asset using the appropriate loader
+	 * Loads an asset based on the given definition using the appropriate loader
 	 *
-	 * @param definition the asset index entry defining the asset to load
+	 * @param definition the asset index entry describing the asset to load
 	 */
-	private Asset loadAsset(AssetIndexParser.Entry definition) throws AssetLoaderException
+	public Asset load(AssetIndexEntry definition) throws AssetLoaderException
 	{
 		if(loaders.containsKey(definition.type)) {
-			return loaders.get(definition.type).load(definition.sources);
+			List<Source> sources = definition.sources.stream()
+				.map(s -> new Source(rootDir, s))
+				.collect(Collectors.toList());
+			
+			return loaders.get(definition.type).load(definition.id, sources, this);
+			
 		} else {
 			throw new AssetLoaderException("No loader found for asset type: " + definition.type);
 		}
+	}
+	
+	/**
+	 * Adds an asset definition to the asset index
+	 *
+	 * @param entry the asset index entry describing the asset to add
+	 */
+	public void addDefinition(AssetIndexEntry entry)
+	{
+		indexEntries.add(entry);
+	}
+	
+	/**
+	 * Returns the asset store associated with this assets component
+	 *
+	 * @return the asset store
+	 */
+	public AssetStore getStore()
+	{
+		return store;
 	}
 	
 	@Override

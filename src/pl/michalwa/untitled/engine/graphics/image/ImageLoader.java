@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
 import pl.michalwa.untitled.engine.assets.AssetLoaderException;
+import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.assets.Loader;
 import pl.michalwa.untitled.engine.assets.Source;
 
@@ -13,14 +14,14 @@ import pl.michalwa.untitled.engine.assets.Source;
 public class ImageLoader implements Loader<Image>
 {
 	@Override
-	public Image load(List<Source> sources) throws AssetLoaderException
+	public Image load(String id, List<Source> sources, Assets assets) throws AssetLoaderException
 	{
 		if(sources.size() != 1) {
 			throw new AssetLoaderException("An image asset must have exactly 1 source provided");
 		}
 		
 		try {
-			return new Image(ImageIO.read(sources.get(0).open()));
+			return new Image(id, ImageIO.read(sources.get(0).open()));
 		} catch(IOException e) {
 			throw new AssetLoaderException("Could not load image", e);
 		}

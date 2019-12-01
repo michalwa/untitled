@@ -18,11 +18,12 @@ public class Config extends Asset
 	/**
 	 * Constructs a new config asset
 	 *
+	 * @param id the ID of the asset
 	 * @param properties the loaded properties
 	 */
-	Config(Properties properties)
+	Config(String id, Properties properties)
 	{
-		super(true);
+		super(id, true);
 		this.properties = properties;
 	}
 	
@@ -31,7 +32,7 @@ public class Config extends Asset
 	 */
 	public Config()
 	{
-		super(false);
+		super(null, false);
 		properties = new Properties();
 	}
 	
