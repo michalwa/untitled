@@ -13,7 +13,7 @@ public abstract class Event
 	/**
 	 * Whether this event has been consumed by a handler
 	 */
-	protected boolean consumed = false;
+	private boolean consumed = false;
 	
 	/**
 	 * Returns a human-readable description of the event
@@ -25,7 +25,9 @@ public abstract class Event
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + ": " + getMessage();
+		return (source != null ? "[" + source + "] " : "")
+			+ getClass().getSimpleName()
+			+ ": " + getMessage();
 	}
 	
 	/**

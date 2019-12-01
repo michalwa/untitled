@@ -70,6 +70,12 @@ public class MouseInput extends EventDispatcher implements
 	}
 	
 	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName();
+	}
+	
+	@Override
 	public void mouseClicked(MouseEvent e)
 	{
 		dispatch(new MouseClickedEvent(

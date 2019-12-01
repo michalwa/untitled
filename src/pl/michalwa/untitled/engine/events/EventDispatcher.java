@@ -1,6 +1,5 @@
 package pl.michalwa.untitled.engine.events;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -22,22 +21,11 @@ public class EventDispatcher
 	private final List<SubscriberEntry<?>> subscribers;
 	
 	/**
-	 * The print writer to log events with
-	 */
-	private PrintStream log = null;
-	
-	/**
-	 * The name of the event dispatcher (for logging events)
-	 */
-	private String name;
-	
-	/**
 	 * Constructs a new event dispatcher
 	 */
 	public EventDispatcher()
 	{
 		subscribers = new ArrayList<>();
-		name = getClass().getSimpleName();
 	}
 	
 	/**
@@ -82,16 +70,11 @@ public class EventDispatcher
 	{
 		event.source = this;
 		
-		if(log != null) {
-			String namePrefix = name != null ? "[" + name + "] " : "";
-			log.println(namePrefix + event);
-		}
-		
 		// Iterate in reverse so that subscribers added earlier have less priority
 		// In case an event gets consumed by a subscriber we want the subscribers
 		// registered before it not to recieve the event
 		Iterator<SubscriberEntry<?>> iterator = new ReverseListIterator<>(subscribers);
-		while(iterator.hasNext() && !event.consumed) {
+		while(iterator.hasNext() && !event.isConsumed()) {
 			SubscriberEntry<?> entry = iterator.next();
 			
 			if(entry.eventType.isInstance(event)) {
@@ -101,27 +84,6 @@ public class EventDispatcher
 				}
 			}
 		}
-	}
-	
-	/**
-	 * If a print stream is set as the event log stream, all events will be printed to it
-	 * before being dispatched.
-	 *
-	 * @param output the print stream to log events with
-	 */
-	public void setEventLogStream(PrintStream output)
-	{
-		log = output;
-	}
-	
-	/**
-	 * Sets the name of this event dispatcher used for logging purposes
-	 *
-	 * @param name the new name of this event dispatcher
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 	
 	/**
@@ -176,9 +138,9 @@ public class EventDispatcher
 			return super.equals(obj)
 				
 				|| (obj instanceof SubscriberEntry
-				&& Objects.equals(((SubscriberEntry) obj).subscriber, subscriber)
-				&& Objects.equals(((SubscriberEntry) obj).eventType,  eventType)
-				&& Objects.equals(((SubscriberEntry) obj).predicate,  predicate));
+				&& Objects.equals(((SubscriberEntry<?>) obj).subscriber, subscriber)
+				&& Objects.equals(((SubscriberEntry<?>) obj).eventType,  eventType)
+				&& Objects.equals(((SubscriberEntry<?>) obj).predicate,  predicate));
 		}
 	}
 }

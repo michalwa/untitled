@@ -163,6 +163,12 @@ public class Window extends EventDispatcher implements Component, WindowListener
 	}
 	
 	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName();
+	}
+	
+	@Override
 	public void getDependencies(Set<Class<? extends Component>> dependencies) {}
 	
 	@Override

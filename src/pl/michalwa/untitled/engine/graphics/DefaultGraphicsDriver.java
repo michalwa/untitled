@@ -9,7 +9,7 @@ import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.window.Window;
 
 /**
- * Controls the graphics displayed on a {@link Canvas}
+ * Controls the graphics displayed on a {@link Canvas} with no processing
  */
 public class DefaultGraphicsDriver implements GraphicsDriver
 {
@@ -41,6 +41,12 @@ public class DefaultGraphicsDriver implements GraphicsDriver
 		graphics.dispose();
 		graphics = null;
 		bs.show();
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName();
 	}
 	
 	@Override

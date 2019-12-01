@@ -3,7 +3,10 @@ package pl.michalwa.untitled.engine.component;
 import java.util.Set;
 
 /**
- * A component is an element of the engine with a single responsibility
+ * A component is an module of the engine with a single responsibility.
+ *
+ * It is recommended for components to override {@link #toString()} and return a simple name,
+ * e.g. simple class name.
  */
 public interface Component
 {

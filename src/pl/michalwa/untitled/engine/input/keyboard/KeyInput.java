@@ -29,6 +29,12 @@ public class KeyInput extends EventDispatcher implements Component, KeyListener
 	}
 	
 	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName();
+	}
+	
+	@Override
 	public void keyTyped(KeyEvent e)
 	{
 		dispatch(new KeyTypedEvent(Key.get(e.getKeyCode(), e.getKeyLocation()), e.getKeyChar()));

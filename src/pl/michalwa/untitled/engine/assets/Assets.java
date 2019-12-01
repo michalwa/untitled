@@ -156,6 +156,12 @@ public class Assets implements Component
 	}
 	
 	@Override
+	public String toString()
+	{
+		return getClass().getSimpleName();
+	}
+	
+	@Override
 	public void getDependencies(Set<Class<? extends Component>> dependencies)
 	{
 		dependencies.add(AssetStore.class);
