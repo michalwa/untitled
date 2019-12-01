@@ -86,7 +86,10 @@ public class Container
 		MissingComponentException,
 		ComponentInitializationException
 	{
-		// For building the initialization stack later
+		// For detecting dependency loops
+		DependencyGraph graph = new DependencyGraph();
+		
+		// Used later for building the initialization stack
 		Set<Component> toTraverse = new HashSet<>(components.values());
 		
 		// Collect dependencies
@@ -99,19 +102,23 @@ public class Container
 			resolvedDeps.put(component, new ArrayList<>());
 			for(Class<? extends Component> dep : deps) {
 				Optional<? extends Component> opt = get(dep);
+				
 				if(opt.isPresent()) {
 					Component resolved = opt.get();
-					if(component == resolved) {
-						throw new DependencyLoopException(
-							"Component " + component + " directly requires itself as a dependency");
-					}
 					resolvedDeps.get(component).add(resolved);
+					graph.addDependency(component, resolved);
 					toTraverse.remove(resolved);
 				} else {
 					throw new MissingComponentException(
 						"Missing dependency " + dep.getCanonicalName() + " required by " + component);
 				}
 			}
+		}
+		
+		// Detect dependency loops
+		DependencyGraph.Vertex cyclic = graph.findCyclic();
+		if(cyclic != null) {
+			throw new DependencyLoopException("Cyclic dependency detected: " + cyclic.getComponent());
 		}
 		
 		// There must be at least one component that is not required by any other
@@ -130,8 +137,6 @@ public class Container
 				toTraverse.remove(component);
 			}
 		}
-		
-		// TODO: Detect dependency loops
 		
 		// Run initialization
 		while(!stack.empty()) {
