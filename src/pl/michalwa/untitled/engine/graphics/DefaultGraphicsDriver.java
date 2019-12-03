@@ -6,6 +6,7 @@ import java.awt.image.BufferStrategy;
 import java.util.Set;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
+import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.window.Window;
 
 /**
@@ -13,6 +14,11 @@ import pl.michalwa.untitled.engine.window.Window;
  */
 public class DefaultGraphicsDriver implements GraphicsDriver
 {
+	/**
+	 * The window component
+	 */
+	private Window window = null;
+	
 	/**
 	 * The buffer strategy
 	 */
@@ -33,6 +39,15 @@ public class DefaultGraphicsDriver implements GraphicsDriver
 			graphics = (Graphics2D) bs.getDrawGraphics();
 		}
 		return graphics;
+	}
+	
+	@Override
+	public Vector2i getCanvasDimensions()
+	{
+		if(window == null) {
+			throw new IllegalStateException("Graphics driver not initialized");
+		}
+		return window.getSize();
 	}
 	
 	@Override
@@ -58,7 +73,8 @@ public class DefaultGraphicsDriver implements GraphicsDriver
 	@Override
 	public void initialize(Container container)
 	{
-		Canvas canvas = container.require(Window.class).getCanvas();
+		window = container.require(Window.class);
+		Canvas canvas = window.getCanvas();
 		canvas.createBufferStrategy(3);  // use triple buffering
 		bs = canvas.getBufferStrategy();
 	}

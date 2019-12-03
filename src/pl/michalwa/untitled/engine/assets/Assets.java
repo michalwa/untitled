@@ -106,26 +106,11 @@ public class Assets implements Component
 	 */
 	public Optional<Asset> get(String id)
 	{
-		if(store == null) {
-			throw new IllegalStateException("Assets component not initialized");
-		}
-		
-		Optional<Asset> opt = store.get(id);
-		if(opt.isPresent()) return opt;
-		
 		try {
-			for(AssetDefinition entry : indexEntries) {
-				if(entry.getId().equals(id)) {
-					Asset asset = load(entry);
-					store.add(id, asset);
-					return Optional.ofNullable(asset);
-				}
-			}
-		} catch(AssetLoaderException e) {
-			e.printStackTrace();
+			return Optional.ofNullable(require(id));
+		} catch(RequiredAssetException e) {
+			return Optional.empty();
 		}
-		
-		return Optional.empty();
 	}
 	
 	/**
@@ -139,22 +124,24 @@ public class Assets implements Component
 	public Asset require(String id)
 	{
 		if(store == null) {
-			throw new RequiredAssetException("Assets component not initialized");
+			throw new IllegalStateException("Assets component not initialized");
 		}
 		
 		Optional<Asset> opt = store.get(id);
 		if(opt.isPresent()) return opt.get();
 		
-		try {
-			for(AssetDefinition entry : indexEntries) {
-				if(entry.getId().equals(id)) {
-					Asset asset = load(entry);
-					store.add(id, asset);
-					return asset;
-				}
+		Optional<AssetDefinition> def = indexEntries.stream()
+			.filter(e -> e.getId().equals(id))
+			.findAny();
+		
+		if(def.isPresent()) {
+			try {
+				Asset asset = load(def.get());
+				store.add(id, asset);
+				return asset;
+			} catch(AssetLoaderException e) {
+				throw new RequiredAssetException(e);
 			}
-		} catch(AssetLoaderException e) {
-			throw new RequiredAssetException(e);
 		}
 		
 		throw new RequiredAssetException("Undefined asset: " + id);
