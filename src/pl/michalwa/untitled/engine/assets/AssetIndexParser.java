@@ -3,10 +3,14 @@ package pl.michalwa.untitled.engine.assets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import pl.michalwa.untitled.engine.component.Component;
+import pl.michalwa.untitled.engine.component.ComponentInitializationException;
+import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.utils.collections.StreamUtils;
 
 /**
@@ -42,7 +46,7 @@ import pl.michalwa.untitled.engine.utils.collections.StreamUtils;
  * &lt;/assets&gt;
  * </pre>
  */
-public class AssetIndexParser
+class AssetIndexParser
 {
 	/**
 	 * The root asset index XML tag name
@@ -80,7 +84,7 @@ public class AssetIndexParser
 	 * @param index the asset index XML document
 	 * @param rootDir the root asset directory path; all source paths will be prepended with this path
 	 */
-	public List<AssetDefinition> parse(Document index, String rootDir) throws AssetIndexException
+	List<AssetDefinition> parse(Document index, String rootDir) throws AssetIndexException
 	{
 		List<AssetDefinition> entries = new ArrayList<>();
 		

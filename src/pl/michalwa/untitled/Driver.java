@@ -1,7 +1,5 @@
 package pl.michalwa.untitled;
 
-import pl.michalwa.untitled.engine.assets.AssetIndexParser;
-import pl.michalwa.untitled.engine.assets.AssetStore;
 import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.config.Config;
@@ -39,12 +37,7 @@ public class Driver
 		Window         window     = new Window();
 		GraphicsDriver graphics   = new DefaultGraphicsDriver();
 		Renderer       renderer   = new Renderer();
-		AssetStore     assetStore = new AssetStore();
-		Assets         assets     = new Assets(
-			new XMLLoader(),
-			new AssetIndexParser(),
-			"assets",
-			"../assets.xml");
+		Assets         assets     = new Assets(new XMLLoader(), "assets", "assets.xml");
 		MouseInput     mouse      = new MouseInput();
 		KeyInput       keyboard   = new KeyInput();
 		
@@ -54,7 +47,6 @@ public class Driver
 			window,
 			graphics,
 			renderer,
-			assetStore,
 			assets,
 			mouse,
 			keyboard

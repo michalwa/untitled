@@ -1,6 +1,5 @@
 package pl.michalwa.untitled.engine.assets;
 
-import java.nio.file.Paths;
 import java.util.*;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
@@ -19,7 +18,7 @@ public class Assets implements Component
 	/**
 	 * Loaded asset store
 	 */
-	private AssetStore store = null;
+	private final AssetStore store = new AssetStore();
 	
 	/**
 	 * Loaders for different types of assets
@@ -31,18 +30,16 @@ public class Assets implements Component
 	 * The passed {@code Loader<XML>} is immediately registered as the loader for XML assets
 	 *
 	 * @param xmlLoader the loader responsible for loading XML documents
-	 * @param parser the parser to use to parse the asset index document
 	 * @param rootDir the root asset directory
-	 * @param indexFilename the name of the asset index file in the asset directory
+	 * @param indexPath the absolute path to the asset index XML file
 	 *
 	 * @throws AssetLoaderException if {@code xmlLoader} throws {@link AssetLoaderException}
 	 * @throws AssetIndexException if {@code parser} throws {@link AssetIndexException}
 	 */
 	public Assets(
-		Loader<XML>      xmlLoader,
-		AssetIndexParser parser,
-		String           rootDir,
-		String           indexFilename
+		Loader<XML> xmlLoader,
+		String      rootDir,
+		String      indexPath
 	) throws
 		AssetLoaderException,
 		AssetIndexException
@@ -53,9 +50,10 @@ public class Assets implements Component
 		AssetDefinition definition = new AssetDefinition(
 				null,
 				XML.class.getCanonicalName(),
-				Collections.singletonList(new Source(Paths.get(rootDir, indexFilename))));
-
+				Collections.singletonList(new Source(indexPath)));
+		
 		XML index = (XML) load(definition);
+		AssetIndexParser parser = new AssetIndexParser();
 		indexEntries = parser.parse(index.getDocument(), rootDir);
 	}
 	
@@ -123,10 +121,6 @@ public class Assets implements Component
 	 */
 	public Asset require(String id)
 	{
-		if(store == null) {
-			throw new IllegalStateException("Assets component not initialized");
-		}
-		
 		Optional<Asset> opt = store.get(id);
 		if(opt.isPresent()) return opt.get();
 		
@@ -191,7 +185,7 @@ public class Assets implements Component
 	}
 	
 	/**
-	 * Returns the asset store associated with this assets component
+	 * Returns the asset store used to store loaded assets
 	 *
 	 * @return the asset store
 	 */
@@ -207,14 +201,8 @@ public class Assets implements Component
 	}
 	
 	@Override
-	public void getDependencies(Set<Class<? extends Component>> dependencies)
-	{
-		dependencies.add(AssetStore.class);
-	}
+	public void getDependencies(Set<Class<? extends Component>> dependencies) {}
 	
 	@Override
-	public void initialize(Container container)
-	{
-		store = container.require(AssetStore.class);
-	}
+	public void initialize(Container container) {}
 }

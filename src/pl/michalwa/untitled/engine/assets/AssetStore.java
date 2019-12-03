@@ -10,7 +10,7 @@ import pl.michalwa.untitled.engine.component.Container;
 /**
  * Stores existing assets
  */
-public class AssetStore implements Component
+public class AssetStore
 {
 	/**
 	 * The stored assets
@@ -51,10 +51,4 @@ public class AssetStore implements Component
 	{
 		return getClass().getSimpleName();
 	}
-	
-	@Override
-	public void getDependencies(Set<Class<? extends Component>> dependencies) {}
-	
-	@Override
-	public void initialize(Container container) {}
 }

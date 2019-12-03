@@ -3,7 +3,7 @@ package pl.michalwa.untitled.engine.graphics.render;
 import pl.michalwa.untitled.engine.graphics.Color;
 
 /**
- * Provides rendering functionality as well as information about the rendering devices and components
+ * Provides rendering functionality
  */
 public interface RenderingContext
 {

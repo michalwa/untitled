@@ -5,24 +5,24 @@ package pl.michalwa.untitled.engine.assets;
  */
 public class RequiredAssetException extends RuntimeException
 {
-	public RequiredAssetException() {}
+	RequiredAssetException() {}
 	
-	public RequiredAssetException(String message)
+	RequiredAssetException(String message)
 	{
 		super(message);
 	}
 	
-	public RequiredAssetException(String message, Throwable cause)
+	RequiredAssetException(String message, Throwable cause)
 	{
 		super(message, cause);
 	}
 	
-	public RequiredAssetException(Throwable cause)
+	RequiredAssetException(Throwable cause)
 	{
 		super(cause);
 	}
 	
-	public RequiredAssetException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
+	RequiredAssetException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace)
 	{
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
