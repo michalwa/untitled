@@ -3,6 +3,7 @@ package pl.michalwa.untitled.engine.config;
 import java.util.Objects;
 import java.util.Properties;
 import pl.michalwa.untitled.engine.assets.Asset;
+import pl.michalwa.untitled.engine.assets.AssetDefinition;
 import pl.michalwa.untitled.engine.utils.Int;
 
 /**
@@ -18,12 +19,12 @@ public class Config extends Asset
 	/**
 	 * Constructs a new config asset
 	 *
-	 * @param id the ID of the asset
+	 * @param definition the asset definition
 	 * @param properties the loaded properties
 	 */
-	Config(String id, Properties properties)
+	Config(AssetDefinition definition, Properties properties)
 	{
-		super(id, true);
+		super(definition);
 		this.properties = properties;
 	}
 	
@@ -32,7 +33,7 @@ public class Config extends Asset
 	 */
 	public Config()
 	{
-		super(null, false);
+		super(null);
 		properties = new Properties();
 	}
 	

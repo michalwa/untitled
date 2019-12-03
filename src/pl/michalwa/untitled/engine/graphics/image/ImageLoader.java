@@ -3,25 +3,28 @@ package pl.michalwa.untitled.engine.graphics.image;
 import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
-import pl.michalwa.untitled.engine.assets.AssetLoaderException;
-import pl.michalwa.untitled.engine.assets.Assets;
-import pl.michalwa.untitled.engine.assets.Loader;
-import pl.michalwa.untitled.engine.assets.Source;
+import pl.michalwa.untitled.engine.assets.*;
 
 /**
- * Loader for {@link Image} assets
+ * Loads {@link Image} assets
  */
 public class ImageLoader implements Loader<Image>
 {
 	@Override
-	public Image load(String id, List<Source> sources, Assets assets) throws AssetLoaderException
+	public Class<Image> getAssetType()
 	{
-		if(sources.size() != 1) {
+		return Image.class;
+	}
+	
+	@Override
+	public Image load(AssetDefinition definition, Assets assets) throws AssetLoaderException
+	{
+		if(definition.getSources().size() != 1) {
 			throw new AssetLoaderException("An image asset must have exactly 1 source provided");
 		}
 		
 		try {
-			return new Image(id, ImageIO.read(sources.get(0).open()));
+			return new Image(definition, ImageIO.read(definition.getSources().get(0).open()));
 		} catch(IOException e) {
 			throw new AssetLoaderException("Could not load image", e);
 		}

@@ -13,15 +13,23 @@ import pl.michalwa.untitled.engine.graphics.image.Image;
 public class CursorLoader implements Loader<Cursor>
 {
 	@Override
-	public Cursor load(String id, List<Source> sources, Assets assets) throws AssetLoaderException
+	public Class<Cursor> getAssetType()
 	{
+		return Cursor.class;
+	}
+	
+	@Override
+	public Cursor load(AssetDefinition definition, Assets assets) throws AssetLoaderException
+	{
+		List<Source> sources = definition.getSources();
+		
 		if(sources.size() != 1) {
 			throw new AssetLoaderException("A cursor asset must have exactly 1 source provided");
 		}
 		
 		// Load config
-		Loader<?> configLoader = assets.getLoader("config");
-		Asset configAsset = configLoader.load(null, sources, assets);
+		Loader<?> configLoader = assets.getLoader(Config.class.getCanonicalName());
+		Asset configAsset = configLoader.load(definition, assets);
 		if(configAsset instanceof Config) {
 			Config config = (Config) configAsset;
 			String imagePath = config.get("image", null);
@@ -32,11 +40,15 @@ public class CursorLoader implements Loader<Cursor>
 			
 			// Load image
 			Source imageSource = sources.get(0).relative(imagePath);
-			Asset imageAsset = assets.load(new AssetDefinition(id + ".image", "image", Collections.singletonList(imageSource)));
+			Asset imageAsset = assets.load(new AssetDefinition(
+				definition.getId() + ".image",
+				Image.class.getCanonicalName(),
+				Collections.singletonList(imageSource)));
+			
 			if(imageAsset instanceof Image) {
 			
 				// Construct cursor
-				return new Cursor(id, (Image) imageAsset, new Vector2i(
+				return new Cursor(definition, (Image) imageAsset, new Vector2i(
 					config.getInt("hotSpotX", 0),
 					config.getInt("hotSpotY", 0)
 				));

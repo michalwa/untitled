@@ -10,13 +10,19 @@ import java.util.List;
 public interface Loader<T extends Asset>
 {
 	/**
+	 * Returns the asset type supported by this loader
+	 *
+	 * @return the supported asset type
+	 */
+	Class<T> getAssetType();
+	
+	/**
 	 * Loads an asset of the appropriate type from the given input stream
 	 *
-	 * @param id the id of the asset to load
-	 * @param sources the input stream to load the asset from
+	 * @param definition the definition of the asset to load
 	 * @param assets the assets component calling this method
 	 *
 	 * @return the loaded asset
 	 */
-	T load(String id, List<Source> sources, Assets assets) throws AssetLoaderException;
+	T load(AssetDefinition definition, Assets assets) throws AssetLoaderException;
 }

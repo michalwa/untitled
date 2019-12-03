@@ -3,6 +3,7 @@ package pl.michalwa.untitled.engine.window.cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import pl.michalwa.untitled.engine.assets.Asset;
+import pl.michalwa.untitled.engine.assets.AssetDefinition;
 import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.graphics.image.Image;
 
@@ -38,13 +39,13 @@ public class Cursor extends Asset
 	/**
 	 * Constructs a cursor asset
 	 *
-	 * @param id the ID of the asset
+	 * @param definition the asset definition
 	 * @param image the cursor image
 	 * @param hotSpot the coordinates of the pixel to be centered on the mouse position
 	 */
-	Cursor(String id, Image image, Vector2i hotSpot)
+	Cursor(AssetDefinition definition, Image image, Vector2i hotSpot)
 	{
-		super(id, true);
+		super(definition);
 		this.image = image;
 		this.hotSpot = hotSpot;
 	}

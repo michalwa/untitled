@@ -51,9 +51,9 @@ public class Driver
 			.initialize();
 		
 		// Register asset loaders
-		assets.registerLoader("image", new ImageLoader());
-		assets.registerLoader("config", new ConfigLoader());
-		assets.registerLoader("cursor", new CursorLoader());
+		assets.registerLoader(new ImageLoader())
+			.registerLoader(new ConfigLoader())
+			.registerLoader(new CursorLoader());
 		
 		// Set up window
 		int width = 640, height = 480;
@@ -81,7 +81,8 @@ public class Driver
 			// Fill circle at cursor with foreground color
 			gfx.setColor(foreground.toAWTColor());
 			Vector2i mousePos = mouse.position.get();
-			gfx.fillOval(mousePos.x - 10, mousePos.y - 10, 20, 20);
+			int size = mouse.wheel.get() * 5;
+			gfx.fillOval(mousePos.x - size / 2, mousePos.y - size / 2, size, size);
 			
 			// Display
 			graphics.display();
@@ -94,6 +95,8 @@ public class Driver
 		keyboard.subscribe(KeyPressedEvent.class,
 			event -> event.getKey() == Key.ESCAPE,
 			event -> Container.main.require(Application.class).quit());
+		
+		mouse.wheel.set(10);
 		
 		// Start the application
 		app.subscribe(Event.class, System.out::println);

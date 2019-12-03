@@ -2,6 +2,7 @@ package pl.michalwa.untitled.engine.xml;
 
 import org.w3c.dom.Document;
 import pl.michalwa.untitled.engine.assets.Asset;
+import pl.michalwa.untitled.engine.assets.AssetDefinition;
 
 /**
  * ML document wrapper
@@ -16,12 +17,12 @@ public class XML extends Asset
 	/**
 	 * Constructs a new XML document wrapper
 	 *
-	 * @param id the ID of the asset
+	 * @param assetDefinition the asset definition
 	 * @param document the XML document
 	 */
-	XML(String id, Document document)
+	XML(AssetDefinition assetDefinition, Document document)
 	{
-		super(id, true);
+		super(assetDefinition);
 		this.document = document;
 	}
 	

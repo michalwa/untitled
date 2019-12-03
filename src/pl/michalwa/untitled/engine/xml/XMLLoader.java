@@ -4,13 +4,10 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
-import pl.michalwa.untitled.engine.assets.AssetLoaderException;
-import pl.michalwa.untitled.engine.assets.Assets;
-import pl.michalwa.untitled.engine.assets.Loader;
-import pl.michalwa.untitled.engine.assets.Source;
+import pl.michalwa.untitled.engine.assets.*;
 
 /**
- * Loader for {@link XML} assets
+ * Loads {@link XML} assets
  */
 public class XMLLoader implements Loader<XML>
 {
@@ -20,16 +17,22 @@ public class XMLLoader implements Loader<XML>
 	private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	
 	@Override
-	public XML load(String id, List<Source> sources, Assets assets) throws AssetLoaderException
+	public Class<XML> getAssetType()
 	{
-		if(sources.size() != 1) {
+		return XML.class;
+	}
+	
+	@Override
+	public XML load(AssetDefinition definition, Assets assets) throws AssetLoaderException
+	{
+		if(definition.getSources().size() != 1) {
 			throw new AssetLoaderException("An XML asset must have exactly 1 source provided");
 		}
 		
 		try {
 			DocumentBuilder builder = dbf.newDocumentBuilder();
-			Document document = builder.parse(sources.get(0).open());
-			return new XML(id, document);
+			Document document = builder.parse(definition.getSources().get(0).open());
+			return new XML(definition, document);
 		} catch(Exception e) {
 			throw new AssetLoaderException("Could not load XML", e);
 		}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <assets>
-    <asset id="icon" type="image" src="placeholder_icon.png"/>
-    <asset id="colors" type="config" src="colors.properties"/>
-    <asset id="cursors/pointer" type="cursor" src="cursors/pointer.properties"/>
+    <asset id="icon" type="Image" src="placeholder_icon.png"/>
+    <asset id="colors" type="Config" src="colors.properties"/>
+    <asset id="cursors/pointer" type="Cursor" src="cursors/pointer.properties"/>
 </assets>

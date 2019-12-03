@@ -159,7 +159,7 @@ public class AssetIndexParser
 		
 		// Asset definitions with repeated IDs will be ignored
 		return entries.stream()
-			.filter(StreamUtils.distinctByKey(e -> e.id))
+			.filter(StreamUtils.distinctByKey(AssetDefinition::getId))
 			.collect(Collectors.toList());
 	}
 }
