@@ -2,8 +2,8 @@ package pl.michalwa.untitled.engine.assets;
 
 import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import pl.michalwa.untitled.engine.utils.Strings;
 
 /**
  * Defines a source file from which an asset can be loaded
@@ -11,25 +11,28 @@ import pl.michalwa.untitled.engine.utils.Strings;
 public class Source
 {
 	/**
-	 * The root asset directory
-	 */
-	private final String rootDir;
-	
-	/**
 	 * Path to the source file
 	 */
-	private final String file;
+	private final Path path;
 	
 	/**
-	 * Constructs a new source file definition
+	 * Constructs a new source file definition with the given path
 	 *
-	 * @param rootDir the root asset directory
-	 * @param file path to the source file
+	 * @param path path to the source file
 	 */
-	Source(String rootDir, String file)
+	Source(Path path)
 	{
-		this.rootDir = rootDir;
-		this.file = file;
+		this.path = path;
+	}
+	
+	/**
+	 * Constructs a new source file definition with the specified path
+	 *
+	 * @param path elements of the path to the source file as a string
+	 */
+	Source(String... path)
+	{
+		this.path = Paths.get("", path);
 	}
 	
 	/**
@@ -42,21 +45,37 @@ public class Source
 	 */
 	public InputStream open() throws NoSuchFileException
 	{
-		String path = Strings.ensureStartsWith("/", Paths.get(rootDir, file).toString());
-		InputStream is = Source.class.getResourceAsStream(path);
+		String resolvedPath = "/" + path;
+		InputStream is = Source.class.getResourceAsStream(resolvedPath);
 		if(is == null) {
-			throw new NoSuchFileException(path, null, "Source file does not exist");
+			throw new NoSuchFileException(resolvedPath, null, "Source file does not exist");
 		}
 		return is;
 	}
 	
 	/**
-	 * Returns the path to the source file relative to the root asset directory
+	 * Resolves the given relative path against the parent path of this source file definition
+	 * and returns a new source file definition with the resulting path
 	 *
-	 * @return the path to the source file relative to the root asset directory
+	 * @param relativePath the relative path to resolve
+	 *
+	 * @return a new source file definition with the resolved path
 	 */
-	public String getPath()
+	public Source relative(Path relativePath)
 	{
-		return file;
+		return new Source(path.resolveSibling(relativePath));
+	}
+	
+	/**
+	 * Resolves the specified relative path against the parent path of this source file definition
+	 * and returns a new source file definition with the resulting path
+	 *
+	 * @param relativePath the relative path to resolve as a string
+	 *
+	 * @return a new source file definition with the resolved path
+	 */
+	public Source relative(String relativePath)
+	{
+		return new Source(path.resolveSibling(relativePath));
 	}
 }

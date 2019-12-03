@@ -3,9 +3,9 @@ package pl.michalwa.untitled.engine.assets;
 import java.util.List;
 
 /**
- * An entry parsed from the asset index
+ * A definition of an asset based on which an asset can be loaded
  */
-public class AssetIndexEntry
+public class AssetDefinition
 {
 	/**
 	 * The ID of the asset
@@ -13,23 +13,23 @@ public class AssetIndexEntry
 	final String id;
 	
 	/**
-	 * The type of the asset
+	 * The name of the type of the asset
 	 */
 	final String type;
 	
 	/**
-	 * Source paths
+	 * Sources
 	 */
-	final List<String> sources;
+	final List<Source> sources;
 	
 	/**
 	 * Constructs a new asset index entry
 	 *
 	 * @param id the ID of the asset
-	 * @param type the type of the asset
+	 * @param type the name of the type of the asset
 	 * @param sources source definitions
 	 */
-	public AssetIndexEntry(String id, String type, List<String> sources)
+	public AssetDefinition(String id, String type, List<Source> sources)
 	{
 		this.id = id;
 		this.type = type;

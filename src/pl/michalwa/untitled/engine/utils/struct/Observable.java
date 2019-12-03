@@ -5,19 +5,19 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * A generic data wrapper that allows dispatching custom actions when the data is changed
+ * A wrapper that allows dispatching custom actions when the data is changed
  */
-public class Observable<T>
+public class Observable<T> extends Wrapper<T>
 {
-	/**
-	 * The stored value
-	 */
-	private T value = null;
-	
 	/**
 	 * Subscribed observers
 	 */
 	private final List<Observer<T>> observers = new CopyOnWriteArrayList<>();
+	
+	/**
+	 * Constructs a new observable wrapper with a {@code null} value
+	 */
+	public Observable() {}
 	
 	/**
 	 * Constructs a new observable wrapper with the given initial value
@@ -26,31 +26,16 @@ public class Observable<T>
 	 */
 	public Observable(T value)
 	{
-		this.value = value;
-	}
-	
-	/**
-	 * Constructs a new observable wrapper with no initial value ({@code null})
-	 */
-	public Observable() {}
-	
-	/**
-	 * Returns the value stored in this observable
-	 *
-	 * @return the value
-	 */
-	public T get()
-	{
-		return value;
+		super(value);
 	}
 	
 	/**
 	 * Stores the given value in this observable. If {@link Objects#equals(Object, Object)}
-	 * return {@code false} for the current/previous and the new value of the observable,
-	 * all observers will be notified.
+	 * returns {@code false} for the current/previous and the new value, all observers will be notified.
 	 *
 	 * @param value the new value
 	 */
+	@Override
 	public void set(T value)
 	{
 		T previous = this.value;
@@ -82,7 +67,7 @@ public class Observable<T>
 	public interface Observer<T>
 	{
 		/**
-		 * Called when the value of an observable wrapper changes
+		 * Called when the value of an observable wrapper changes ({@link #set(Object)} is called)
 		 *
 		 * @param previousValue the previous value stored in the observable wrapper
 		 * @param newValue the new value

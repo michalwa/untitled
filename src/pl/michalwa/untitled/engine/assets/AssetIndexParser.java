@@ -1,5 +1,6 @@
 package pl.michalwa.untitled.engine.assets;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,10 +78,11 @@ public class AssetIndexParser
 	 * Parses the asset index and returns all defined assets
 	 *
 	 * @param index the asset index XML document
+	 * @param rootDir the root asset directory path; all source paths will be prepended with this path
 	 */
-	public List<AssetIndexEntry> parse(Document index) throws AssetIndexException
+	public List<AssetDefinition> parse(Document index, String rootDir) throws AssetIndexException
 	{
-		List<AssetIndexEntry> entries = new ArrayList<>();
+		List<AssetDefinition> entries = new ArrayList<>();
 		
 		// Get root element
 		Element root = index.getDocumentElement();
@@ -113,9 +115,9 @@ public class AssetIndexParser
 			}
 			
 			// Check for source attribute
-			List<String> sources = new ArrayList<>();
+			List<Source> sources = new ArrayList<>();
 			if(child.hasAttribute(SOURCE_ATTR)) {
-				sources.add(child.getAttribute(SOURCE_ATTR));
+				sources.add(new Source(Paths.get(rootDir, child.getAttribute(SOURCE_ATTR))));
 			}
 			
 			// Parse source tags, if no source attribute is present
@@ -138,14 +140,14 @@ public class AssetIndexParser
 							"<" + SOURCE_TAG + "> tags must have an `" + SOURCE_ATTR + "` attribute");
 					}
 					
-					sources.add(child2.getAttribute(SOURCE_ATTR));
+					sources.add(new Source(Paths.get(rootDir, child2.getAttribute(SOURCE_ATTR))));
 					
 					childNode2 = childNode2.getNextSibling();
 				}
 			}
 			
 			// Parse entry
-			AssetIndexEntry entry = new AssetIndexEntry(
+			AssetDefinition entry = new AssetDefinition(
 				child.getAttribute(ID_ATTR),
 				child.getAttribute(TYPE_ATTR),
 				sources

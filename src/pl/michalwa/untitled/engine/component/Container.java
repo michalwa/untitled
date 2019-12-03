@@ -30,14 +30,18 @@ public class Container
 	 * Registers the given components
 	 *
 	 * @param components components to register
+	 *
+	 * @return this container for method call chaining
 	 */
-	public void register(Component... components)
+	public Container register(Component... components)
 	{
 		for(Component component : components) {
 			if(!this.components.containsValue(component)) {
 				this.components.put(component.getClass(), component);
 			}
 		}
+		
+		return this;
 	}
 	
 	/**
@@ -79,7 +83,9 @@ public class Container
 	 * Components will be initialized in an order that ensures that each component's
 	 * dependencies are initialized before it.
 	 *
-	 * @throws ComponentInitializationException if any of the components
+	 * @throws ComponentInitializationException if any of the components fails to initialize
+	 * @throws MissingComponentException if a component dependency is missing
+	 * @throws DependencyLoopException if a dependency loop/cycle occurs
 	 */
 	public void initialize() throws
 		DependencyLoopException,

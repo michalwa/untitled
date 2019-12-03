@@ -2,7 +2,6 @@ package pl.michalwa.untitled;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import pl.michalwa.untitled.engine.assets.Asset;
 import pl.michalwa.untitled.engine.assets.AssetIndexParser;
 import pl.michalwa.untitled.engine.assets.AssetStore;
 import pl.michalwa.untitled.engine.assets.Assets;
@@ -21,7 +20,6 @@ import pl.michalwa.untitled.engine.input.keyboard.KeyInput;
 import pl.michalwa.untitled.engine.input.keyboard.events.KeyPressedEvent;
 import pl.michalwa.untitled.engine.input.mouse.MouseInput;
 import pl.michalwa.untitled.engine.loop.GameLoop;
-import pl.michalwa.untitled.engine.loop.events.EverySecond;
 import pl.michalwa.untitled.engine.loop.events.Frame;
 import pl.michalwa.untitled.engine.runtime.Application;
 import pl.michalwa.untitled.engine.window.Window;
@@ -48,8 +46,9 @@ public class Driver
 		MouseInput     mouse      = new MouseInput();
 		KeyInput       keyboard   = new KeyInput();
 		
-		Container.main.register(app, gameLoop, window, graphics, assetStore, assets, mouse, keyboard);
-		Container.main.initialize();
+		Container.main
+			.register(app, gameLoop, window, graphics, assetStore, assets, mouse, keyboard)
+			.initialize();
 		
 		// Register asset loaders
 		assets.registerLoader("image", new ImageLoader());
@@ -60,16 +59,11 @@ public class Driver
 		int width = 640, height = 480;
 		window.subscribe(WindowEvent.class, System.out::println);
 		window.setSize(width, height);
-		
-		Asset icon = assets.require("icon");
-		if(icon instanceof Image) window.setIcon((Image) icon);
-		
-		Asset cursor = assets.require("cursors/pointer");
-		if(cursor instanceof Cursor) window.setCursor((Cursor) cursor);
+		window.setIcon(assets.require(Image.class, "icon"));
+		window.setCursor(assets.require(Cursor.class, "cursors/pointer"));
 		
 		// Load config
-		Asset colorsAsset = assets.require("colors");
-		Config colors = colorsAsset instanceof Config ? (Config) colorsAsset : new Config();
+		Config colors= assets.require(Config.class, "colors");
 		Color background  = new Color(colors.get("background", "000"));
 		Color foreground = new Color(colors.get("foreground0", "fff"));
 		

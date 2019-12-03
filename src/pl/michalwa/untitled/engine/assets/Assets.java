@@ -1,7 +1,7 @@
 package pl.michalwa.untitled.engine.assets;
 
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.xml.XML;
@@ -17,14 +17,9 @@ public class Assets implements Component
 	public static final String XML_TYPE = "xml";
 	
 	/**
-	 * The root asset directory
-	 */
-	private final String rootDir;
-	
-	/**
 	 * Asset definitions parsed from the asset index document
 	 */
-	private final List<AssetIndexEntry> indexEntries;
+	private final List<AssetDefinition> indexEntries;
 	
 	/**
 	 * Loaded asset store
@@ -57,18 +52,16 @@ public class Assets implements Component
 		AssetLoaderException,
 		AssetIndexException
 	{
-		this.rootDir = rootDir;
-		
 		loaders = new HashMap<>();
 		registerLoader(XML_TYPE, xmlLoader);
 
-		AssetIndexEntry definition = new AssetIndexEntry(
+		AssetDefinition definition = new AssetDefinition(
 				null,
 				XML_TYPE,
-				Collections.singletonList(indexFilename));
+				Collections.singletonList(new Source(Paths.get(rootDir, indexFilename))));
 
 		XML index = (XML) load(definition);
-		indexEntries = parser.parse(index.getDocument());
+		indexEntries = parser.parse(index.getDocument(), rootDir);
 	}
 	
 	/**
@@ -76,10 +69,13 @@ public class Assets implements Component
 	 *
 	 * @param type the asset type which the loader should load
 	 * @param loader the loader
+	 *
+	 * @return this for method call chaining
 	 */
-	public void registerLoader(String type, Loader<?> loader)
+	public <T extends Asset> Assets registerLoader(String type, Loader<T> loader)
 	{
 		loaders.put(type, loader);
+		return this;
 	}
 	
 	/**
@@ -113,7 +109,7 @@ public class Assets implements Component
 		if(opt.isPresent()) return opt;
 		
 		try {
-			for(AssetIndexEntry entry : indexEntries) {
+			for(AssetDefinition entry : indexEntries) {
 				if(entry.id.equals(id)) {
 					Asset asset = load(entry);
 					store.add(id, asset);
@@ -132,19 +128,20 @@ public class Assets implements Component
 	 * is not defined or can't be loaded
 	 *
 	 * @param id the ID of the asset to return
+	 *
 	 * @return the asset
 	 */
 	public Asset require(String id)
 	{
 		if(store == null) {
-			throw new IllegalStateException("Assets component not initialized");
+			throw new RequiredAssetException("Assets component not initialized");
 		}
 		
 		Optional<Asset> opt = store.get(id);
 		if(opt.isPresent()) return opt.get();
 		
 		try {
-			for(AssetIndexEntry entry : indexEntries) {
+			for(AssetDefinition entry : indexEntries) {
 				if(entry.id.equals(id)) {
 					Asset asset = load(entry);
 					store.add(id, asset);
@@ -152,10 +149,29 @@ public class Assets implements Component
 				}
 			}
 		} catch(AssetLoaderException e) {
-			throw new RuntimeException(e);
+			throw new RequiredAssetException(e);
 		}
 		
-		throw new IllegalStateException("Undefined asset: " + id);
+		throw new RequiredAssetException("Undefined asset: " + id);
+	}
+	
+	/**
+	 * Same as {@link #require(String)} but will throw a runtime exception if the asset
+	 * is not of the specified type
+	 *
+	 * @param type the expected type of the asset to return
+	 * @param id the ID of the asset to return
+	 *
+	 * @return the asset
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Asset> T require(Class<T> type, String id)
+	{
+		Asset asset = require(id);
+		if(type.isInstance(asset)) {
+			return (T) asset; // "unchecked" cast
+		}
+		throw new RequiredAssetException("Asset `" + id + "` not of type: " + type.getName());
 	}
 	
 	/**
@@ -163,15 +179,10 @@ public class Assets implements Component
 	 *
 	 * @param definition the asset index entry describing the asset to load
 	 */
-	public Asset load(AssetIndexEntry definition) throws AssetLoaderException
+	public Asset load(AssetDefinition definition) throws AssetLoaderException
 	{
 		if(loaders.containsKey(definition.type)) {
-			List<Source> sources = definition.sources.stream()
-				.map(s -> new Source(rootDir, s))
-				.collect(Collectors.toList());
-			
-			return loaders.get(definition.type).load(definition.id, sources, this);
-			
+			return loaders.get(definition.type).load(definition.id, definition.sources, this);
 		} else {
 			throw new AssetLoaderException("No loader found for asset type: " + definition.type);
 		}
@@ -182,7 +193,7 @@ public class Assets implements Component
 	 *
 	 * @param entry the asset index entry describing the asset to add
 	 */
-	public void addDefinition(AssetIndexEntry entry)
+	public void addDefinition(AssetDefinition entry)
 	{
 		indexEntries.add(entry);
 	}

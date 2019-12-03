@@ -1,6 +1,5 @@
 package pl.michalwa.untitled.engine.window.cursor;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import pl.michalwa.untitled.engine.assets.*;
@@ -31,11 +30,9 @@ public class CursorLoader implements Loader<Cursor>
 				throw new AssetLoaderException("A cursor must have an `image` property pointing to the cursor image file");
 			}
 			
-			// Resolve image path relative to config file directory
-			imagePath = Paths.get(sources.get(0).getPath()).resolveSibling(imagePath).toString();
-			
 			// Load image
-			Asset imageAsset = assets.load(new AssetIndexEntry(id + ".image", "image", Collections.singletonList(imagePath)));
+			Source imageSource = sources.get(0).relative(imagePath);
+			Asset imageAsset = assets.load(new AssetDefinition(id + ".image", "image", Collections.singletonList(imageSource)));
 			if(imageAsset instanceof Image) {
 			
 				// Construct cursor
