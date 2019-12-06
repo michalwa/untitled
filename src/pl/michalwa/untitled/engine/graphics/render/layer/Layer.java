@@ -1,6 +1,5 @@
 package pl.michalwa.untitled.engine.graphics.render.layer;
 
-import java.awt.Graphics2D;
 import pl.michalwa.untitled.engine.graphics.render.RenderingContext;
 
 /**

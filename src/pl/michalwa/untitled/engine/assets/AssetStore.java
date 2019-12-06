@@ -3,9 +3,6 @@ package pl.michalwa.untitled.engine.assets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import pl.michalwa.untitled.engine.component.Component;
-import pl.michalwa.untitled.engine.component.Container;
 
 /**
  * Stores existing assets

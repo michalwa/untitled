@@ -63,6 +63,19 @@ public class Vector2f
 	}
 	
 	/**
+	 * Returns the sum of the two vectors
+	 *
+	 * @param x the X coordinate of the other vector
+	 * @param y the Y coordinate of the other vector
+	 *
+	 * @return the sum of this vector and the given vector
+	 */
+	public Vector2f add(float x, float y)
+	{
+		return new Vector2f(this.x + x, this.y + y);
+	}
+	
+	/**
 	 * Returns the difference of the two vectors
 	 *
 	 * @param other the other vector to subtract from this vector
@@ -72,6 +85,19 @@ public class Vector2f
 	public Vector2f sub(Vector2f other)
 	{
 		return new Vector2f(this.x - other.x, this.y - other.y);
+	}
+	
+	/**
+	 * Returns the difference of the two vectors
+	 *
+	 * @param x the X coordinate of the other vector
+	 * @param y the Y coordinate of the other vector
+	 *
+	 * @return the result of subtracting the given vector from this vector
+	 */
+	public Vector2f sub(float x, float y)
+	{
+		return new Vector2f(this.x - x, this.y - y);
 	}
 	
 	/**

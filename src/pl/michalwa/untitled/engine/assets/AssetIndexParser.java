@@ -3,14 +3,10 @@ package pl.michalwa.untitled.engine.assets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import pl.michalwa.untitled.engine.component.Component;
-import pl.michalwa.untitled.engine.component.ComponentInitializationException;
-import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.utils.collections.StreamUtils;
 
 /**

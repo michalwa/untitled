@@ -1,10 +1,12 @@
 package pl.michalwa.untitled.engine.xml;
 
-import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
-import pl.michalwa.untitled.engine.assets.*;
+import pl.michalwa.untitled.engine.assets.AssetDefinition;
+import pl.michalwa.untitled.engine.assets.AssetLoaderException;
+import pl.michalwa.untitled.engine.assets.Assets;
+import pl.michalwa.untitled.engine.assets.Loader;
 
 /**
  * Loads {@link XML} assets

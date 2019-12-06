@@ -1,10 +1,14 @@
 package pl.michalwa.untitled;
 
+import pl.michalwa.untitled.engine.actor.Actor;
+import pl.michalwa.untitled.engine.actor.trait.Transform;
 import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.config.Config;
 import pl.michalwa.untitled.engine.config.ConfigLoader;
 import pl.michalwa.untitled.engine.events.Event;
+import pl.michalwa.untitled.engine.geom.Vector2f;
+import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.graphics.Color;
 import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.GraphicsDriver;
@@ -32,14 +36,14 @@ public class Driver
 	public static void main(String[] args) throws Exception
 	{
 		// Initialize components
-		Application    app        = new Application();
-		GameLoop       gameLoop   = new GameLoop();
-		Window         window     = new Window();
-		GraphicsDriver graphics   = new DefaultGraphicsDriver();
-		Renderer       renderer   = new Renderer();
-		Assets         assets     = new Assets(new XMLLoader(), "assets", "assets.xml");
-		MouseInput     mouse      = new MouseInput();
-		KeyInput       keyboard   = new KeyInput();
+		Application    app      = new Application();
+		GameLoop       gameLoop = new GameLoop();
+		Window         window   = new Window();
+		GraphicsDriver graphics = new DefaultGraphicsDriver();
+		Renderer       renderer = new Renderer();
+		Assets         assets   = new Assets(new XMLLoader(), "assets", "assets.xml");
+		MouseInput     mouse    = new MouseInput();
+		KeyInput       keyboard = new KeyInput();
 		
 		Container.main.register(
 			app,
@@ -70,6 +74,19 @@ public class Driver
 		Color foreground0 = new Color(colors.get("foreground0", "fff"));
 		Color foreground1 = new Color(colors.get("foreground1", "fff"));
 		
+		// Set up scene
+		Actor scene = new Actor();
+		Transform sceneTransform = new Transform();
+		scene.attach(sceneTransform);
+		sceneTransform.rotate(0.1f);
+		
+		Actor actor = new Actor();
+		Transform actorTransform = new Transform();
+		actor.attach(actorTransform);
+		actorTransform.position.bind(mouse.position, Vector2i::toFloat);
+		
+		scene.addChild(actor);
+		
 		// Set up rendering
 		renderer.setAntialiasingEnabled(true);
 		renderer.addLayer(new Background(background));
@@ -78,11 +95,13 @@ public class Driver
 			@Override
 			public void render(RenderingContext ctx)
 			{
+				Vector2f pos = actorTransform.absolutePosition().get();
+				
 				ctx.setFillColor(foreground0);
 				ctx.setStrokeColor(foreground1);
 				ctx.setStrokeWidth(10);
 				ctx.setAnchorMode(AnchorMode.CENTER);
-				ctx.drawCircle((float) width / 2, (float) height / 2, mouse.wheel.get() * 20);
+				ctx.drawCircle(pos.x, pos.y, mouse.wheel.get() * 20);
 			}
 		});
 		

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import pl.michalwa.untitled.engine.utils.Strings;
 
 /**
  * Defines a source file from which an asset can be loaded
@@ -20,7 +21,7 @@ public class Source
 	 *
 	 * @param path path to the source file
 	 */
-	Source(Path path)
+	public Source(Path path)
 	{
 		this.path = path;
 	}
@@ -30,7 +31,7 @@ public class Source
 	 *
 	 * @param path elements of the path to the source file as a string
 	 */
-	Source(String... path)
+	public Source(String... path)
 	{
 		this.path = Paths.get("", path);
 	}
@@ -45,7 +46,7 @@ public class Source
 	 */
 	public InputStream open() throws NoSuchFileException
 	{
-		String resolvedPath = "/" + path;
+		String resolvedPath = Strings.ensureStartsWith("/", path.toString()); // ensure the path points to a local resource
 		InputStream is = Source.class.getResourceAsStream(resolvedPath);
 		if(is == null) {
 			throw new NoSuchFileException(resolvedPath, null, "Source file does not exist");

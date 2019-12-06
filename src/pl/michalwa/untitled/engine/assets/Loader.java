@@ -1,7 +1,5 @@
 package pl.michalwa.untitled.engine.assets;
 
-import java.util.List;
-
 /**
  * Responsible for loading a certain type of assets
  *

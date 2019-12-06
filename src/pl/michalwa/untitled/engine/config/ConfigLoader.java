@@ -1,7 +1,6 @@
 package pl.michalwa.untitled.engine.config;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 import pl.michalwa.untitled.engine.assets.*;
 
