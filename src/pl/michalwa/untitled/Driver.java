@@ -8,7 +8,6 @@ import pl.michalwa.untitled.engine.config.Config;
 import pl.michalwa.untitled.engine.config.ConfigLoader;
 import pl.michalwa.untitled.engine.events.Event;
 import pl.michalwa.untitled.engine.geom.Vector2f;
-import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.graphics.Color;
 import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.GraphicsDriver;
@@ -78,12 +77,12 @@ public class Driver
 		Actor scene = new Actor();
 		Transform sceneTransform = new Transform();
 		scene.attach(sceneTransform);
-		sceneTransform.rotate(0.1f);
+		sceneTransform.rotation.bindTo(mouse.position, pos -> pos.toFloat().dir());
 		
 		Actor actor = new Actor();
 		Transform actorTransform = new Transform();
 		actor.attach(actorTransform);
-		actorTransform.position.bind(mouse.position, Vector2i::toFloat);
+		actorTransform.position.set(new Vector2f(200.0f, 200.0f));
 		
 		scene.addChild(actor);
 		
@@ -95,7 +94,7 @@ public class Driver
 			@Override
 			public void render(RenderingContext ctx)
 			{
-				Vector2f pos = actorTransform.absolutePosition().get();
+				Vector2f pos = actorTransform.absolutePosition.get();
 				
 				ctx.setFillColor(foreground0);
 				ctx.setStrokeColor(foreground1);

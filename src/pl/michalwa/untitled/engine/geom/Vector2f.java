@@ -1,5 +1,7 @@
 package pl.michalwa.untitled.engine.geom;
 
+import static java.lang.Math.*;
+
 /**
  * A 2d vector consisting of two coordinates which are 32-bit floating point numbers
  */
@@ -36,7 +38,7 @@ public class Vector2f
 	 */
 	public float mag()
 	{
-		return (float) Math.sqrt(this.x * this.x + this.y * this.y);
+		return (float) sqrt(this.x * this.x + this.y * this.y);
 	}
 	
 	/**
@@ -47,7 +49,7 @@ public class Vector2f
 	 */
 	public float dir()
 	{
-		return (float) Math.atan2(this.y, this.x);
+		return (float) atan2(this.y, this.x);
 	}
 	
 	/**
@@ -166,9 +168,35 @@ public class Vector2f
 	 *
 	 * @return a normalized copy of this vector
 	 */
-	public Vector2f normalized()
+	public Vector2f normalize()
 	{
 		return this.div(this.mag());
+	}
+	
+	/**
+	 * Returns a new vector that is the result of rotating this vector by the specified angle.
+	 *
+	 * <p>
+	 * The following formula derived from multiplying this vector ({@code v}) by a rotation matrix
+	 * of the given angle is used to calculate the resulting vector ({@code w}):
+	 * <pre>
+	 * &#9121; w.x &#9124; = &#9121; v.x &#9124; &#9121; cos(angle) -sin(angle) &#9124;
+	 * &#9123; w.y &#9126;   &#9123; v.y &#9126; &#9123; sin(angle)  cos(angle) &#9126;
+	 *
+	 * w.x = v.x * cos(angle) - v.y * sin(angle)
+	 * w.y = v.x * sin(angle) + v.y * cos(angle)
+	 * </pre>
+	 * </p>
+	 *
+	 * @param angle the angle to rotate by
+	 *
+	 * @return the result of the rotation
+	 */
+	public Vector2f rotate(float angle)
+	{
+		return new Vector2f(
+			(float) (x * cos(angle) - y * sin(angle)),
+			(float) (x * sin(angle) + y * cos(angle)));
 	}
 	
 	/**

@@ -3,6 +3,7 @@ package pl.michalwa.untitled.engine.actor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import pl.michalwa.untitled.engine.actor.trait.Trait;
@@ -116,7 +117,7 @@ public class Actor
 	 *
 	 * @return a list of traits of the specified type
 	 */
-	public <T extends Trait> List<T> findInDescendants(Class<T> type)
+	public <T extends Trait> List<T> findAllInDescendants(Class<T> type)
 	{
 		return Stream.of(
 			
@@ -126,9 +127,9 @@ public class Actor
 				.map(Optional::get),
 		
 			children.stream()
-				.flatMap(c -> c.findInDescendants(type).stream()))
+				.flatMap(c -> c.findAllInDescendants(type).stream()))
 			
-			.flatMap(x -> x)
+			.flatMap(Function.identity())
 			.collect(Collectors.toList());
 	}
 	

@@ -18,7 +18,7 @@ public class Transform extends Trait
 	/**
 	 * Absolute position
 	 */
-	private Observable<Vector2f> absolutePosition;
+	public final Observable<Vector2f> absolutePosition;
 	
 	/**
 	 * Rotation angle relative to parent actor
@@ -28,7 +28,7 @@ public class Transform extends Trait
 	/**
 	 * Absolute rotation angle
 	 */
-	private Observable<Float> absoluteRotation;
+	public final Observable<Float> absoluteRotation;
 	
 	/**
 	 * Initializes the transform trait
@@ -37,26 +37,8 @@ public class Transform extends Trait
 	{
 		position = new Observable<>(Vector2f.ZERO);
 		rotation = new Observable<>(0.0f);
-	}
-	
-	/**
-	 * Returns the observable absolute position of this transform
-	 *
-	 * @return the absolute position of this transform
-	 */
-	public Observable<Vector2f> absolutePosition()
-	{
-		return absolutePosition;
-	}
-	
-	/**
-	 * Returns the observable absolute rotation angle of this transform
-	 *
-	 * @return the absolute rotation angle of this transform
-	 */
-	public Observable<Float> absoluteRotation()
-	{
-		return absoluteRotation;
+		absolutePosition = new Observable<>();
+		absoluteRotation = new Observable<>();
 	}
 	
 	/**
@@ -93,19 +75,22 @@ public class Transform extends Trait
 	@Override
 	protected void onAttached(Actor actor)
 	{
-		// TODO: Position affected by parent rotation
+		// TODO: Bind together:
+		//   - absolute position
+		//   - parent absolute position
+		//   - parent absolute rotation
 		
-		absolutePosition = position.map(
+		absolutePosition.bindTwoWay(position,
 			
 			relative -> getActor().findInAncestors(Transform.class)
-				.map(t -> t.absolutePosition.get().add(relative))
+				.map(t -> t.absolutePosition.get().add(relative.rotate(t.absoluteRotation.get())))
 				.orElse(relative),
 			
 			absolute -> getActor().findInAncestors(Transform.class)
-				.map(t -> absolute.sub(t.absolutePosition.get()))
+				.map(t -> absolute.sub(t.absolutePosition.get()).rotate(-t.absoluteRotation.get()))
 				.orElse(absolute));
 		
-		absoluteRotation = rotation.map(
+		absoluteRotation.bindTwoWay(rotation,
 			
 			relative -> getActor().findInAncestors(Transform.class)
 				.map(t -> t.absoluteRotation.get() + relative)
