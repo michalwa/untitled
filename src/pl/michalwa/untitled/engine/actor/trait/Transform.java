@@ -1,8 +1,12 @@
 package pl.michalwa.untitled.engine.actor.trait;
 
+import java.util.Optional;
 import pl.michalwa.untitled.engine.actor.Actor;
+import pl.michalwa.untitled.engine.actor.events.AncestorAddedEvent;
+import pl.michalwa.untitled.engine.actor.events.AncestorRemovedEvent;
+import pl.michalwa.untitled.engine.geom.ObservableVector2f;
 import pl.michalwa.untitled.engine.geom.Vector2f;
-import pl.michalwa.untitled.engine.utils.struct.Observable;
+import pl.michalwa.untitled.engine.utils.struct.ObservableFloat;
 
 /**
  * A trait that contains information about where and how an actor is positioned
@@ -11,34 +15,50 @@ import pl.michalwa.untitled.engine.utils.struct.Observable;
 public class Transform extends Trait
 {
 	/**
+	 * The parent transform (attached to closest ancestor) or {@code null}
+	 */
+	private Transform parent = null;
+	
+	/**
 	 * Position relative to parent actor
 	 */
-	public final Observable<Vector2f> position;
+	public final ObservableVector2f position;
 	
 	/**
 	 * Absolute position
 	 */
-	public final Observable<Vector2f> absolutePosition;
+	public final ObservableVector2f absolutePosition;
 	
 	/**
 	 * Rotation angle relative to parent actor
 	 */
-	public final Observable<Float> rotation;
+	public final ObservableFloat rotation;
 	
 	/**
 	 * Absolute rotation angle
 	 */
-	public final Observable<Float> absoluteRotation;
+	public final ObservableFloat absoluteRotation;
 	
 	/**
 	 * Initializes the transform trait
 	 */
 	public Transform()
 	{
-		position = new Observable<>(Vector2f.ZERO);
-		rotation = new Observable<>(0.0f);
-		absolutePosition = new Observable<>();
-		absoluteRotation = new Observable<>();
+		position = new ObservableVector2f(Vector2f.ZERO);
+		rotation = new ObservableFloat(0.0f);
+		absolutePosition = new ObservableVector2f(Vector2f.ZERO);
+		absoluteRotation = new ObservableFloat(0.0f);
+	}
+	
+	/**
+	 * Returns the parent transform (attached to the closest ancestor with the {@link Transform} trait)
+	 * or an empty {@link Optional} if there is none.
+	 *
+	 * @return the parent transform
+	 */
+	public Optional<Transform> getParent()
+	{
+		return Optional.ofNullable(parent);
 	}
 	
 	/**
@@ -48,7 +68,7 @@ public class Transform extends Trait
 	 */
 	public void translate(Vector2f v)
 	{
-		position.set(position.get().add(v));
+		position.add(v);
 	}
 	
 	/**
@@ -59,7 +79,7 @@ public class Transform extends Trait
 	 */
 	public void translate(float x, float y)
 	{
-		position.set(position.get().add(x, y));
+		position.add(x, y);
 	}
 	
 	/**
@@ -69,35 +89,67 @@ public class Transform extends Trait
 	 */
 	public void rotate(float angle)
 	{
-		rotation.set(rotation.get() + angle);
+		rotation.add(angle);
 	}
 	
 	@Override
 	protected void onAttached(Actor actor)
 	{
-		// TODO: Bind together:
-		//   - absolute position
-		//   - parent absolute position
-		//   - parent absolute rotation
+		resetBindings();
+		parent = actor.findInAncestors(Transform.class).orElse(null);
+		bindToParent();
 		
+		actor.subscribe(AncestorAddedEvent.class, event -> {
+			Transform newParent = actor.findInAncestors(Transform.class).orElse(null);
+			if(parent != newParent) {
+				parent = newParent;
+				bindToParent();
+			}
+		});
+		
+		actor.subscribe(AncestorRemovedEvent.class, event -> {
+			if(parent != null && parent.getActor() == event.actor) {
+				resetBindings();
+				parent = null;
+			}
+		});
+	}
+	
+	/**
+	 * Binds properties of this transform to the parent transform, if it exists
+	 */
+	private void bindToParent()
+	{
+		if(parent == null) return;
+		
+		absolutePosition.bindTo(parent.absolutePosition, pos -> pos.add(position.get().rotate(parent.absoluteRotation.get())));
+		absolutePosition.bindTo(parent.absoluteRotation, rot -> parent.absolutePosition.get().add(position.get().rotate(rot)));
+		
+		absolutePosition.unbindTwoWay(position);
 		absolutePosition.bindTwoWay(position,
-			
-			relative -> getActor().findInAncestors(Transform.class)
-				.map(t -> t.absolutePosition.get().add(relative.rotate(t.absoluteRotation.get())))
-				.orElse(relative),
-			
-			absolute -> getActor().findInAncestors(Transform.class)
-				.map(t -> absolute.sub(t.absolutePosition.get()).rotate(-t.absoluteRotation.get()))
-				.orElse(absolute));
+			pos -> parent.absolutePosition.get().add(pos.rotate(parent.absoluteRotation.get())),
+			pos -> pos.sub(parent.absolutePosition.get()).rotate(-parent.absoluteRotation.get()));
 		
-		absoluteRotation.bindTwoWay(rotation,
-			
-			relative -> getActor().findInAncestors(Transform.class)
-				.map(t -> t.absoluteRotation.get() + relative)
-				.orElse(relative),
-			
-			absolute -> getActor().findInAncestors(Transform.class)
-				.map(t -> absolute - t.absoluteRotation.get())
-				.orElse(absolute));
+		absoluteRotation.unbindTwoWay(rotation);
+		absoluteRotation.bindTo(parent.absoluteRotation, rotation, Float::sum);
+		rotation.bindTo(parent.absoluteRotation, absoluteRotation, (parentRot, absRot) -> absRot - parentRot);
+	}
+	
+	/**
+	 * Resets the bindings of the properties of this transform
+	 */
+	private void resetBindings()
+	{
+		if(parent != null) {
+			absolutePosition.unbindFrom(parent.absolutePosition);
+			absolutePosition.unbindFrom(parent.absoluteRotation);
+			absoluteRotation.unbindFrom(parent.absoluteRotation);
+		}
+		
+		absolutePosition.unbindTwoWay(position);
+		absolutePosition.bindTwoWay(position);
+		
+		absoluteRotation.unbindFrom(rotation);
+		absoluteRotation.bindTwoWay(rotation);
 	}
 }

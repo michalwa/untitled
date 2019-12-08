@@ -61,7 +61,7 @@ public class Vector2f
 	 */
 	public Vector2f add(Vector2f other)
 	{
-		return new Vector2f(this.x + other.x, this.y + other.y);
+		return add(other.x, other.y);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class Vector2f
 	 */
 	public Vector2f sub(Vector2f other)
 	{
-		return new Vector2f(this.x - other.x, this.y - other.y);
+		return sub(other.x, other.y);
 	}
 	
 	/**

@@ -38,7 +38,20 @@ public class Vector2i
 	 */
 	public Vector2i add(Vector2i other)
 	{
-		return new Vector2i(this.x + other.x, this.y + other.y);
+		return add(other.x, other.y);
+	}
+	
+	/**
+	 * Returns the sum of this vector and the vector with the specified coordinates
+	 *
+	 * @param x the X cooridnate of the vector to sum with this vector
+	 * @param y the Y cooridnate of the vector to sum with this vector
+	 *
+	 * @return the sum of this vector and the vector with the specified coordinates
+	 */
+	public Vector2i add(int x, int y)
+	{
+		return new Vector2i(this.x + x, this.y + y);
 	}
 	
 	/**
@@ -50,7 +63,20 @@ public class Vector2i
 	 */
 	public Vector2i sub(Vector2i other)
 	{
-		return new Vector2i(this.x - other.x, this.y - other.y);
+		return sub(other.x, other.y);
+	}
+	
+	/**
+	 * Returns the difference of this vector and the vector with the specified coordinates
+	 *
+	 * @param x the X cooridnate of the vector to subtract from this vector
+	 * @param y the Y cooridnate of the vector to subtract from this vector
+	 *
+	 * @return the difference of this vector and the vector with the specified coordinates
+	 */
+	public Vector2i sub(int x, int y)
+	{
+		return new Vector2i(this.x - x, this.y - y);
 	}
 	
 	/**

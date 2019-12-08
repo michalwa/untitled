@@ -105,4 +105,31 @@ public class ObservableTest
 		assertEquals(319, (int) a.get());
 		assertEquals(321, (int) b.get());
 	}
+	
+	@Test
+	public void simpleOneWayDoubleBinding()
+	{
+		// a := b + c
+		Observable<Integer> a = new Observable<>(0);
+		Observable<Integer> b = new Observable<>(1);
+		Observable<Integer> c = new Observable<>(2);
+		
+		a.bindTo(b, c, Integer::sum);
+		
+		assertEquals(3, (int) a.get());
+		assertEquals(1, (int) b.get());
+		assertEquals(2, (int) c.get());
+		
+		b.set(2);
+		
+		assertEquals(4, (int) a.get());
+		assertEquals(2, (int) b.get());
+		assertEquals(2, (int) c.get());
+		
+		c.set(6);
+		
+		assertEquals(8, (int) a.get());
+		assertEquals(2, (int) b.get());
+		assertEquals(6, (int) c.get());
+	}
 }

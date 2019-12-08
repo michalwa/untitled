@@ -6,12 +6,18 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import pl.michalwa.untitled.engine.actor.events.AncestorAddedEvent;
+import pl.michalwa.untitled.engine.actor.events.AncestorRemovedEvent;
+import pl.michalwa.untitled.engine.actor.events.DescendantAddedEvent;
+import pl.michalwa.untitled.engine.actor.events.DescendantRemovedEvent;
 import pl.michalwa.untitled.engine.actor.trait.Trait;
+import pl.michalwa.untitled.engine.events.Event;
+import pl.michalwa.untitled.engine.events.EventDispatcher;
 
 /**
  * An actor is anything "physical" in the game
  */
-public class Actor
+public class Actor extends EventDispatcher
 {
 	/**
 	 * The parent actor (can be {@code null})
@@ -29,29 +35,53 @@ public class Actor
 	 */
 	private final List<Trait> traits = new ArrayList<>();
 	
+	@Override
+	public <T extends Event> void dispatch(T event)
+	{
+		super.dispatch(event);
+		
+		// Propagate tree events
+		if(event instanceof AncestorAddedEvent || event instanceof AncestorRemovedEvent) {
+			getChildren().forEach(c -> c.dispatch(event));
+		} else if(event instanceof DescendantAddedEvent || event instanceof DescendantRemovedEvent) {
+			getParent().ifPresent(p -> p.dispatch(event));
+		}
+	}
+	
 	/**
-	 * Adds the given actor as a child of this actor
+	 * Adds the given actor as a child of this actor. Removes the actor
+	 * from the children of its current parent.
 	 *
 	 * @param actor the child to add
 	 */
 	public void addChild(Actor actor)
 	{
-		if(!children.contains(actor)) children.add(actor);
+		if(actor.parent != null) {
+			actor.parent.removeChild(actor);
+		}
+		if(!children.contains(actor)) {
+			children.add(actor);
+		}
+		
 		actor.parent = this;
+		
+		actor.dispatch(new AncestorAddedEvent(this));
+		dispatch(new DescendantAddedEvent(actor));
 	}
 	
 	/**
-	 * Removes the given actor from the children of this actor. Returns {@code true}
-	 * if the given actor was a child of this actor and was removed successfully or {@code false}
-	 * otherwise.
+	 * Removes the given actor from the children of this actor.
 	 *
 	 * @param actor the child to remove
-	 *
-	 * @return {@code true} if the given actor was a child of this actor and was removed or {@code false} otherwise
 	 */
-	public boolean removeChild(Actor actor)
+	public void removeChild(Actor actor)
 	{
-		return children.remove(actor);
+		if(actor.parent == this) {
+			actor.parent = null;
+			actor.dispatch(new AncestorRemovedEvent(this));
+		}
+		children.remove(actor);
+		dispatch(new DescendantRemovedEvent(actor));
 	}
 	
 	/**
@@ -82,7 +112,9 @@ public class Actor
 	 */
 	public void attach(Trait trait)
 	{
-		if(!getTrait(trait.getClass()).isPresent()) traits.add(trait);
+		if(!getTrait(trait.getClass()).isPresent()) {
+			traits.add(trait);
+		}
 		trait.attachTo(this);
 	}
 	
@@ -98,13 +130,10 @@ public class Actor
 	@SuppressWarnings("unchecked")
 	public <T extends Trait> Optional<T> getTrait(Class<T> type)
 	{
-		for(Trait trait : traits) {
-			if(type.isInstance(trait)) {
-				return Optional.of((T) trait);  // "unchecked" cast
-			}
-		}
-		
-		return Optional.empty();
+		return traits.stream()
+			.filter(type::isInstance)
+			.map(t -> (T) t)
+			.findAny();
 	}
 	
 	/**

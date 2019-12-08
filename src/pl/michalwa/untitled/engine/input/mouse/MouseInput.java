@@ -7,11 +7,13 @@ import pl.michalwa.untitled.engine.component.Component;
 import pl.michalwa.untitled.engine.component.Container;
 import pl.michalwa.untitled.engine.events.EventDispatcher;
 import pl.michalwa.untitled.engine.events.EventSubscriber;
+import pl.michalwa.untitled.engine.geom.ObservableVector2i;
 import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.input.mouse.events.MouseClickedEvent;
 import pl.michalwa.untitled.engine.input.mouse.events.MousePressedEvent;
 import pl.michalwa.untitled.engine.input.mouse.events.MouseReleasedEvent;
 import pl.michalwa.untitled.engine.utils.struct.Observable;
+import pl.michalwa.untitled.engine.utils.struct.ObservableInt;
 import pl.michalwa.untitled.engine.window.Window;
 
 /**
@@ -37,21 +39,21 @@ public class MouseInput extends EventDispatcher implements
 	/**
 	 * The position of the mouse cursor on the game canvas
 	 */
-	public final Observable<Vector2i> position;
+	public final ObservableVector2i position;
 	
 	/**
 	 * The position of the mouse wheel relative to its position
 	 * upon initialization of this component (in unit turns or "clicks")
 	 */
-	public final Observable<Integer> wheel;
+	public final ObservableInt wheel;
 	
 	/**
 	 * Constructs a new mouse input component
 	 */
 	public MouseInput()
 	{
-		position = new Observable<>(Vector2i.ZERO);
-		wheel = new Observable<>(0);
+		position = new ObservableVector2i(Vector2i.ZERO);
+		wheel = new ObservableInt(0);
 	}
 	
 	@Override
@@ -114,7 +116,7 @@ public class MouseInput extends EventDispatcher implements
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
-		wheel.set(wheel.get() + e.getWheelRotation());
+		wheel.add(e.getWheelRotation());
 	}
 	
 	@Override

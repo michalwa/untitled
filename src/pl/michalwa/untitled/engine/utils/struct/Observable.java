@@ -1,8 +1,7 @@
 package pl.michalwa.untitled.engine.utils.struct;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -19,7 +18,7 @@ public class Observable<T> extends Wrapper<T>
 	/**
 	 * List of active bindings
 	 */
-	private final List<Binding<T, ?>> bindings = new ArrayList<>();
+	private final List<Binding<?>> bindings = new ArrayList<>();
 	
 	/**
 	 * Constructs a new observable wrapper with a {@code null} value
@@ -56,7 +55,7 @@ public class Observable<T> extends Wrapper<T>
 	 *
 	 * @param value the new value
 	 */
-	private void setFromBinding(T value, Observable<?> omit)
+	private void setFromBinding(T value, Collection<Observable<?>> omit)
 	{
 		T previous = this.value;
 		this.value = value;
@@ -69,9 +68,9 @@ public class Observable<T> extends Wrapper<T>
 			}
 			
 			// Update bindings
-			for(Binding<T, ?> binding : bindings) {
-				if(binding.target != omit) {
-					binding.update(this);
+			for(Binding<?> binding : bindings) {
+				if(omit == null || !omit.contains(binding.target)) {
+					binding.update();
 				}
 			}
 		}
@@ -114,13 +113,14 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public void bindTo(Observable<T> o)
 	{
-		for(Binding<T, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		o.bindings.add(new Binding<>(this, Function.identity()));
-		setFromBinding(o.value, o);
+		Binding<T> binding = new SingleBinding<>(o, this, Function.identity());
+		o.bindings.add(binding);
+		binding.update();
 	}
 	
 	/**
@@ -142,19 +142,20 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public void bindTwoWay(Observable<T> o)
 	{
-		for(Binding<T, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		for(Binding<T, ?> binding : bindings) {
+		for(Binding<?> binding : bindings) {
 			if(binding.target == o) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		o.bindings.add(new Binding<>(this, Function.identity()));
-		bindings.add(new Binding<>(o, Function.identity()));
-		setFromBinding(o.value, o);
+		Binding<T> firstBinding = new SingleBinding<>(o, this, Function.identity());
+		o.bindings.add(firstBinding);
+		bindings.add(new SingleBinding<>(this, o, Function.identity()));
+		firstBinding.update();
 	}
 	
 	/**
@@ -174,13 +175,14 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public <U> void bindTo(Observable<U> o, Function<U, T> mapping)
 	{
-		for(Binding<U, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		o.bindings.add(new Binding<>(this, mapping));
-		setFromBinding(mapping.apply(o.value), o);
+		Binding<T> binding = new SingleBinding<>(o, this, mapping);
+		o.bindings.add(binding);
+		binding.update();
 	}
 	
 	/**
@@ -206,19 +208,56 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public <U> void bindTwoWay(Observable<U> o, Function<U, T> back, Function<T, U> forth)
 	{
-		for(Binding<U, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		for(Binding<T, ?> binding : bindings) {
+		for(Binding<?> binding : bindings) {
 			if(binding.target == o) {
 				throw new IllegalStateException("Binding already exists");
 			}
 		}
-		o.bindings.add(new Binding<>(this, back));
-		bindings.add(new Binding<>(o, forth));
-		setFromBinding(back.apply(o.value), o);
+		Binding<T> firstBinding = new SingleBinding<>(o, this, back);
+		o.bindings.add(firstBinding);
+		bindings.add(new SingleBinding<>(this, o, forth));
+		firstBinding.update();
+	}
+	
+	/**
+	 * Binds this observable to both of the given observables.
+	 *
+	 * <p>
+	 * Whenever the value of any of the given observables changes, this observable is set
+	 * to the result of calling the given mapping function with the values of the observables.
+	 * </p>
+	 * <p>
+	 * This observable is initially set to the result of calling the mapping function
+	 * with the values of the two observables.
+	 * </p>
+	 *
+	 * @param u the first observable to bind to
+	 * @param v the second observable to bind to
+	 * @param mapping the mapping function from the two observables to this observable
+	 * @param <U> the type of the first observable
+	 * @param <V> the type of the second observable
+	 */
+	public <U, V> void bindTo(Observable<U> u, Observable<V> v, BiFunction<U, V, T> mapping)
+	{
+		for(Binding<?> binding : u.bindings) {
+			if(binding.target == this) {
+				throw new IllegalStateException("Binding already exists");
+			}
+		}
+		for(Binding<?> binding : v.bindings) {
+			if(binding.target == this) {
+				throw new IllegalStateException("Binding already exists");
+			}
+		}
+		Binding<T> binding = new DoubleBinding<>(u, v, this, mapping);
+		u.bindings.add(binding);
+		v.bindings.add(binding);
+		binding.update();
 	}
 	
 	/**
@@ -229,7 +268,7 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public void unbindFrom(Observable<?> o)
 	{
-		for(Binding<?, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				o.bindings.remove(binding);
 				break;
@@ -245,13 +284,13 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public void unbindTwoWay(Observable<?> o)
 	{
-		for(Binding<?, ?> binding : o.bindings) {
+		for(Binding<?> binding : o.bindings) {
 			if(binding.target == this) {
 				o.bindings.remove(binding);
 				break;
 			}
 		}
-		for(Binding<?, ?> binding : bindings) {
+		for(Binding<?> binding : bindings) {
 			if(binding.target == o) {
 				bindings.remove(binding);
 				break;
@@ -271,7 +310,7 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public <U> Observable<U> map(Function<T, U> mapping)
 	{
-		Observable<U> observable = new Observable<>(mapping.apply(value));
+		Observable<U> observable = new Observable<>(mapping.apply(get()));
 		observable.bindTo(this, mapping);
 		return observable;
 	}
@@ -289,8 +328,31 @@ public class Observable<T> extends Wrapper<T>
 	 */
 	public <U> Observable<U> mapTwoWay(Function<T, U> forth, Function<U, T> back)
 	{
-		Observable<U> observable = new Observable<>(forth.apply(value));
+		Observable<U> observable = new Observable<>(forth.apply(get()));
 		observable.bindTwoWay(this, forth, back);
+		return observable;
+	}
+	
+	/**
+	 * Constructs a new observable and creates a double two-way binding between the two
+	 * given source observables and the new observable.
+	 *
+	 * @param s1 the first source observable
+	 * @param s2 the second source observable
+	 * @param mapping the mapping from the two source observables to the new observable
+	 * @param <S1> the type of the first source observable
+	 * @param <S2> the type of the second source observable
+	 * @param <T> the type of the new observable
+	 *
+	 * @return the new observable
+	 */
+	public static <S1, S2, T> Observable<T> map(
+		Observable<S1> s1,
+		Observable<S2> s2,
+		BiFunction<S1, S2, T> mapping
+	) {
+		Observable<T> observable = new Observable<>(mapping.apply(s1.get(), s2.get()));
+		observable.bindTo(s1, s2, mapping);
 		return observable;
 	}
 	
@@ -312,43 +374,120 @@ public class Observable<T> extends Wrapper<T>
 	}
 	
 	/**
-	 * A one-way binding between two observables
+	 * A one-way binding between observables
 	 *
-	 * @param <T> the type of the first observable
-	 * @param <U> the type of the second observable
+	 * @param <T> the type of the target observable
 	 */
-	private static class Binding<T, U>
+	private static abstract class Binding<T>
 	{
 		/**
 		 * The target observable
 		 */
-		final Observable<U> target;
+		final Observable<T> target;
+		
+		Binding(Observable<T> target)
+		{
+			this.target = target;
+		}
+		
+		/**
+		 * Updates this binding by mapping and setting the value of the target observable
+		 */
+		abstract void update();
+	}
+	
+	/**
+	 * A simple one-way binding between two observables
+	 *
+	 * @param <S> the type of the source observable
+	 * @param <T> the type of the target observable
+	 */
+	private static class SingleBinding<S, T> extends Binding<T>
+	{
+		/**
+		 * The source observable
+		 */
+		final Observable<S> source;
 		
 		/**
 		 * The mapping function
 		 */
-		final Function<T, U> mapping;
+		final Function<S, T> mapping;
 		
 		/**
 		 * Constructs a new binding
 		 *
+		 * @param source the source observable
 		 * @param target the target observable
 		 * @param mapping the mapping function
 		 */
-		Binding(Observable<U> target, Function<T, U> mapping)
-		{
-			this.target = target;
+		SingleBinding(
+			Observable<S> source,
+			Observable<T> target,
+			Function<S, T> mapping
+		) {
+			super(target);
+			this.source = source;
 			this.mapping = mapping;
 		}
 		
-		/**
-		 * Updates this binding with the given value of the source observable
-		 *
-		 * @param source the source observable
-		 */
-		void update(Observable<T> source)
+		@Override
+		void update()
 		{
-			target.setFromBinding(mapping.apply(source.value), target);
+			T value = mapping.apply(source.get());
+			target.setFromBinding(value, Collections.singletonList(target));
+		}
+	}
+	
+	/**
+	 * A double one-way binding between three observables
+	 *
+	 * @param <S1> the type of the first source observable
+	 * @param <S2> the type of the second source observable
+	 * @param <T> the type of the target observable
+	 */
+	private static class DoubleBinding<S1, S2, T> extends Binding<T>
+	{
+		/**
+		 * The first source observable
+		 */
+		final Observable<S1> firstSource;
+		
+		/**
+		 * The second source observable
+		 */
+		final Observable<S2> secondSource;
+		
+		/**
+		 * The mapping function
+		 */
+		final BiFunction<S1, S2, T> mapping;
+		
+		/**
+		 * Constructs a new double one-way binding
+		 *
+		 * @param firstSource the first source observable
+		 * @param secondSource the second source observable
+		 * @param target the target observable
+		 * @param mapping the mapping function
+		 */
+		DoubleBinding(
+			Observable<S1> firstSource,
+			Observable<S2> secondSource,
+			Observable<T> target,
+			BiFunction<S1, S2, T> mapping
+		) {
+			super(target);
+			this.firstSource = firstSource;
+			this.secondSource = secondSource;
+			this.mapping = mapping;
+		}
+		
+		@Override
+		void update()
+		{
+			T value = mapping.apply(firstSource.get(), secondSource.get());
+			target.setFromBinding(value, Arrays.asList(firstSource, secondSource));
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package pl.michalwa.untitled;
 
 import pl.michalwa.untitled.engine.actor.Actor;
+import pl.michalwa.untitled.engine.actor.LabeledActor;
 import pl.michalwa.untitled.engine.actor.trait.Transform;
 import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.component.Container;
@@ -64,6 +65,7 @@ public class Driver
 		int width = 640, height = 480;
 		window.subscribe(WindowEvent.class, System.out::println);
 		window.setSize(width, height);
+		window.setTitle("untitled");
 		window.setIcon(assets.require(Image.class, "icon"));
 		window.setCursor(assets.require(Cursor.class, "cursors/pointer"));
 		
@@ -74,17 +76,17 @@ public class Driver
 		Color foreground1 = new Color(colors.get("foreground1", "fff"));
 		
 		// Set up scene
-		Actor scene = new Actor();
-		Transform sceneTransform = new Transform();
-		scene.attach(sceneTransform);
-		sceneTransform.rotation.bindTo(mouse.position, pos -> pos.toFloat().dir());
+		Actor parent = new LabeledActor("parent");
+		Transform parentTransform = new Transform();
+		parent.attach(parentTransform);
+		parentTransform.rotation.bindTo(mouse.position, pos -> pos.toFloat().dir());
 		
-		Actor actor = new Actor();
-		Transform actorTransform = new Transform();
-		actor.attach(actorTransform);
-		actorTransform.position.set(new Vector2f(200.0f, 200.0f));
+		Actor child = new LabeledActor("child");
+		Transform childTransform = new Transform();
+		child.attach(childTransform);
+		childTransform.position.set(new Vector2f(200.0f, 0.0f));
 		
-		scene.addChild(actor);
+		parent.addChild(child);
 		
 		// Set up rendering
 		renderer.setAntialiasingEnabled(true);
@@ -94,7 +96,7 @@ public class Driver
 			@Override
 			public void render(RenderingContext ctx)
 			{
-				Vector2f pos = actorTransform.absolutePosition.get();
+				Vector2f pos = childTransform.absolutePosition.get();
 				
 				ctx.setFillColor(foreground0);
 				ctx.setStrokeColor(foreground1);
