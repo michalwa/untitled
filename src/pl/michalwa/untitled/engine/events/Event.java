@@ -33,22 +33,20 @@ public abstract class Event
 	/**
 	 * Consumes this event preventing further subscribers from recieving it
 	 *
-	 * @return this event for method call chaining
 	 */
-	public Event consume()
+	public void consume()
 	{
 		consumed = true;
-		return this;
 	}
 	
 	/**
-	 * Returns {@code true} if this event has been consumed by a handler
-	 * or {@code false} otherwise
+	 * Returns {@code true} if this event was not consumed and is valid to
+	 * be dispatched to further handlers or {@code false} otherwise
 	 *
-	 * @return whether this event has been consumed by a handler
+	 * @return whether this event has not been consumed by a handler
 	 */
-	public boolean isConsumed()
+	public boolean isValid()
 	{
-		return consumed;
+		return !consumed;
 	}
 }

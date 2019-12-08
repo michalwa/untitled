@@ -166,7 +166,7 @@ public class Window extends EventDispatcher implements Component, WindowListener
 		dispatch(event);
 		
 		// Exist the entire application if event not consumed
-		if(!event.isConsumed()) {
+		if(event.isValid()) {
 			if(app != null) {
 				app.quit();
 			} else {

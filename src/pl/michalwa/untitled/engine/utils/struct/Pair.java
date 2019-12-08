@@ -53,7 +53,7 @@ public class Pair<T1, T2>
 		return super.equals(obj)
 			
 			|| (obj instanceof Pair
-			&& Objects.equals(((Pair) obj).first, first)
-			&& Objects.equals(((Pair) obj).second, second));
+			&& Objects.equals(((Pair<?, ?>) obj).first, first)
+			&& Objects.equals(((Pair<?, ?>) obj).second, second));
 	}
 }

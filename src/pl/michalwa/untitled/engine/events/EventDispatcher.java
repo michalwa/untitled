@@ -74,7 +74,7 @@ public class EventDispatcher
 		// In case an event gets consumed by a subscriber we want the subscribers
 		// registered before it not to recieve the event
 		Iterator<SubscriberEntry<?>> iterator = new ReverseListIterator<>(subscribers);
-		while(iterator.hasNext() && !event.isConsumed()) {
+		while(iterator.hasNext() && event.isValid()) {
 			SubscriberEntry<?> entry = iterator.next();
 			
 			if(entry.eventType.isInstance(event)) {

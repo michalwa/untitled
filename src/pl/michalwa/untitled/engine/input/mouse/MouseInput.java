@@ -12,7 +12,6 @@ import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.input.mouse.events.MouseClickedEvent;
 import pl.michalwa.untitled.engine.input.mouse.events.MousePressedEvent;
 import pl.michalwa.untitled.engine.input.mouse.events.MouseReleasedEvent;
-import pl.michalwa.untitled.engine.utils.struct.Observable;
 import pl.michalwa.untitled.engine.utils.struct.ObservableInt;
 import pl.michalwa.untitled.engine.window.Window;
 

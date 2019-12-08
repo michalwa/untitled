@@ -163,13 +163,13 @@ public class Actor extends EventDispatcher
 	}
 	
 	/**
-	 * Finds an ancestor of this actor that has a trait of the specified type attached to it
+	 * Finds the closest ancestor of this actor that has a trait of the specified type attached to it
 	 * and returns that trait. If not found, returns an empty {@link Optional}.
 	 *
 	 * @param type the type of trait to find
 	 * @param <T> the type of trait to find
 	 *
-	 * @return
+	 * @return the found trait or an empty {@link Optional}
 	 */
 	public <T extends Trait> Optional<T> findInAncestors(Class<T> type)
 	{

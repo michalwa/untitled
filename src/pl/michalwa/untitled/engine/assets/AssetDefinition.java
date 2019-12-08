@@ -20,7 +20,7 @@ public class AssetDefinition
 	/**
 	 * Sources
 	 */
-	private  List<Source> sources;
+	private final List<Source> sources;
 	
 	/**
 	 * Constructs a new asset index entry

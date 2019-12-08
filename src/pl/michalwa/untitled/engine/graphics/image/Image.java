@@ -12,7 +12,7 @@ public class Image extends Asset
 	/**
 	 * The actual image
 	 */
-	private BufferedImage image;
+	private final BufferedImage image;
 	
 	/**
 	 * Constructs an image asset with the given image

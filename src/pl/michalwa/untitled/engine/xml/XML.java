@@ -12,7 +12,7 @@ public class XML extends Asset
 	/**
 	 * The encapsulated XML document
 	 */
-	private Document document;
+	private final Document document;
 	
 	/**
 	 * Constructs a new XML document wrapper

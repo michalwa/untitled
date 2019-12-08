@@ -21,7 +21,7 @@ public class Application extends EventDispatcher implements Component
 	{
 		Event event = new StartEvent();
 		dispatch(event);
-		return !event.isConsumed();
+		return event.isValid();
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public class Application extends EventDispatcher implements Component
 	{
 		Event event = new QuitEvent();
 		dispatch(event);
-		if(!event.isConsumed()) System.exit(0);
+		if(event.isValid()) System.exit(0);
 	}
 	
 	@Override

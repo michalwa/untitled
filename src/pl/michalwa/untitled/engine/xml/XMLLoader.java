@@ -16,7 +16,7 @@ public class XMLLoader implements Loader<XML>
 	/**
 	 * Document builder factory
 	 */
-	private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	
 	@Override
 	public Class<XML> getAssetType()
