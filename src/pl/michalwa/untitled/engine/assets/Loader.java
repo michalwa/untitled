@@ -21,6 +21,8 @@ public interface Loader<T extends Asset>
 	 * @param assets the assets component calling this method
 	 *
 	 * @return the loaded asset
+	 *
+	 * @throws AssetLoaderException if the loading fails
 	 */
 	T load(AssetDefinition definition, Assets assets) throws AssetLoaderException;
 }

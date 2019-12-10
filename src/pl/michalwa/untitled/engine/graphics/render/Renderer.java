@@ -1,6 +1,7 @@
 package pl.michalwa.untitled.engine.graphics.render;
 
 import java.awt.BasicStroke;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.*;
@@ -10,6 +11,7 @@ import pl.michalwa.untitled.engine.geom.Vector2f;
 import pl.michalwa.untitled.engine.geom.Vector2i;
 import pl.michalwa.untitled.engine.graphics.Color;
 import pl.michalwa.untitled.engine.graphics.GraphicsDriver;
+import pl.michalwa.untitled.engine.graphics.font.Font;
 import pl.michalwa.untitled.engine.graphics.render.layer.Layer;
 import pl.michalwa.untitled.engine.loop.GameLoop;
 import pl.michalwa.untitled.engine.loop.events.Frame;
@@ -57,7 +59,27 @@ public class Renderer implements Component, RenderingContext
 	/**
 	 * The currently set anchor mode
 	 */
-	private AnchorMode anchorMode = AnchorMode.TOP_LEFT;
+	private AnchorMode anchorMode = new AnchorMode(AnchorMode.Vertical.TOP, AnchorMode.Horizontal.LEFT);
+	
+	/**
+	 * The currently set text anchor mode
+	 */
+	private TextAnchorMode textAnchorMode = new TextAnchorMode(TextAnchorMode.Vertical.BASE, AnchorMode.Horizontal.LEFT);
+	
+	/**
+	 * The currently set font
+	 */
+	private Font font = Font.defaultFont;
+	
+	/**
+	 * The currently set font size
+	 */
+	private float fontSize = 18.0f;
+	
+	/**
+	 * The currently set font style
+	 */
+	private Font.Style fontStyle = Font.Style.PLAIN;
 	
 	/**
 	 * Renders contents to the given graphics instance
@@ -148,7 +170,43 @@ public class Renderer implements Component, RenderingContext
 	@Override
 	public void setAnchorMode(AnchorMode mode)
 	{
-		anchorMode = Optional.ofNullable(mode).orElse(AnchorMode.TOP_LEFT);
+		if(mode != null) anchorMode = mode;
+	}
+	
+	@Override
+	public void setTextAnchorMode(TextAnchorMode mode)
+	{
+		if(mode != null) textAnchorMode = mode;
+	}
+	
+	@Override
+	public void setFont(Font font)
+	{
+		if(font != null) {
+			this.font = font;
+		}
+	}
+	
+	@Override
+	public void setFontSize(float size)
+	{
+		fontSize = size;
+	}
+	
+	@Override
+	public void setFontStyle(Font.Style style)
+	{
+		fontStyle = style;
+	}
+	
+	@Override
+	public void drawLine(float x1, float y1, float x2, float y2)
+	{
+		if(strokeColor != null) {
+			graphics.setColor(strokeColor.toAWTColor());
+			graphics.setStroke(new BasicStroke(strokeWidth));
+			graphics.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+		}
 	}
 	
 	@Override
@@ -182,6 +240,22 @@ public class Renderer implements Component, RenderingContext
 			graphics.setColor(strokeColor.toAWTColor());
 			graphics.setStroke(new BasicStroke(strokeWidth));
 			graphics.drawOval((int) topLeft.x, (int) topLeft.y, (int) width, (int) height);
+		}
+	}
+	
+	@Override
+	public void drawText(float x, float y, String text)
+	{
+		if(fillColor != null) {
+			
+			//noinspection MagicConstant
+			graphics.setFont(this.font.getAWTFont().deriveFont(fontStyle.getAWTFlags(), fontSize));
+			FontMetrics metrics = graphics.getFontMetrics();
+			
+			Vector2f baseLeft = textAnchorMode.getBaseLeft(x, y, metrics, text);
+			
+			graphics.setColor(fillColor.toAWTColor());
+			graphics.drawString(text, baseLeft.x, baseLeft.y);
 		}
 	}
 }

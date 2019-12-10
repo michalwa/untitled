@@ -1,24 +1,16 @@
 package pl.michalwa.untitled;
 
-import pl.michalwa.untitled.engine.actor.Actor;
-import pl.michalwa.untitled.engine.actor.LabeledActor;
-import pl.michalwa.untitled.engine.actor.trait.Transform;
 import pl.michalwa.untitled.engine.assets.Assets;
 import pl.michalwa.untitled.engine.component.Container;
-import pl.michalwa.untitled.engine.config.Config;
 import pl.michalwa.untitled.engine.config.ConfigLoader;
 import pl.michalwa.untitled.engine.events.Event;
-import pl.michalwa.untitled.engine.geom.Vector2f;
 import pl.michalwa.untitled.engine.graphics.Color;
 import pl.michalwa.untitled.engine.graphics.DefaultGraphicsDriver;
 import pl.michalwa.untitled.engine.graphics.GraphicsDriver;
-import pl.michalwa.untitled.engine.graphics.image.Image;
+import pl.michalwa.untitled.engine.graphics.font.FontLoader;
 import pl.michalwa.untitled.engine.graphics.image.ImageLoader;
-import pl.michalwa.untitled.engine.graphics.render.AnchorMode;
 import pl.michalwa.untitled.engine.graphics.render.Renderer;
-import pl.michalwa.untitled.engine.graphics.render.RenderingContext;
 import pl.michalwa.untitled.engine.graphics.render.layer.Background;
-import pl.michalwa.untitled.engine.graphics.render.layer.Layer;
 import pl.michalwa.untitled.engine.input.keyboard.Key;
 import pl.michalwa.untitled.engine.input.keyboard.KeyInput;
 import pl.michalwa.untitled.engine.input.keyboard.events.KeyPressedEvent;
@@ -26,7 +18,6 @@ import pl.michalwa.untitled.engine.input.mouse.MouseInput;
 import pl.michalwa.untitled.engine.loop.GameLoop;
 import pl.michalwa.untitled.engine.runtime.Application;
 import pl.michalwa.untitled.engine.window.Window;
-import pl.michalwa.untitled.engine.window.cursor.Cursor;
 import pl.michalwa.untitled.engine.window.cursor.CursorLoader;
 import pl.michalwa.untitled.engine.window.events.WindowEvent;
 import pl.michalwa.untitled.engine.xml.XMLLoader;
@@ -59,62 +50,23 @@ public class Driver
 		// Register asset loaders
 		assets.registerLoader(new ImageLoader())
 			.registerLoader(new ConfigLoader())
-			.registerLoader(new CursorLoader());
+			.registerLoader(new CursorLoader())
+			.registerLoader(new FontLoader());
 		
 		// Set up window
-		int width = 640, height = 480;
 		window.subscribe(WindowEvent.class, System.out::println);
-		window.setSize(width, height);
+		window.setSize(640, 480);
 		window.setTitle("untitled");
-		window.setIcon(assets.require(Image.class, "icon"));
-		window.setCursor(assets.require(Cursor.class, "cursors/pointer"));
-		
-		// Load config
-		Config colors = assets.require(Config.class, "colors");
-		Color background = new Color(colors.get("background", "000"));
-		Color foreground0 = new Color(colors.get("foreground0", "fff"));
-		Color foreground1 = new Color(colors.get("foreground1", "fff"));
-		
-		// Set up scene
-		Actor parent = new LabeledActor("parent");
-		Transform parentTransform = new Transform();
-		parent.attach(parentTransform);
-		parentTransform.rotation.bindTo(mouse.position, pos -> pos.toFloat().dir());
-		
-		Actor child = new LabeledActor("child");
-		Transform childTransform = new Transform();
-		child.attach(childTransform);
-		childTransform.position.set(new Vector2f(200.0f, 0.0f));
-		
-		parent.addChild(child);
 		
 		// Set up rendering
 		renderer.setAntialiasingEnabled(true);
-		renderer.addLayer(new Background(background));
-		renderer.addLayer(new Layer()
-		{
-			@Override
-			public void render(RenderingContext ctx)
-			{
-				Vector2f pos = childTransform.absolutePosition.get();
-				
-				ctx.setFillColor(foreground0);
-				ctx.setStrokeColor(foreground1);
-				ctx.setStrokeWidth(10);
-				ctx.setAnchorMode(AnchorMode.CENTER);
-				ctx.drawCircle(pos.x, pos.y, mouse.wheel.get() * 20);
-			}
-		});
+		renderer.addLayer(new Background(0, Color.BLACK));
 		
 		// Quit on escape
+		keyboard.subscribe(KeyPressedEvent.class, System.out::println);
 		keyboard.subscribe(KeyPressedEvent.class,
 			event -> event.getKey() == Key.ESCAPE,
 			event -> app.quit());
-		
-		// Log key presses
-		keyboard.subscribe(KeyPressedEvent.class, System.out::println);
-		
-		mouse.wheel.set(5);
 		
 		// Start the application
 		app.subscribe(Event.class, System.out::println);

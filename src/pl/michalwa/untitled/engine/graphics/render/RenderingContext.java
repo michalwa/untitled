@@ -1,6 +1,8 @@
 package pl.michalwa.untitled.engine.graphics.render;
 
+import pl.michalwa.untitled.engine.geom.Vector2f;
 import pl.michalwa.untitled.engine.graphics.Color;
+import pl.michalwa.untitled.engine.graphics.font.Font;
 
 /**
  * Provides rendering functionality
@@ -46,6 +48,79 @@ public interface RenderingContext
 	void setAnchorMode(AnchorMode mode);
 	
 	/**
+	 * Sets the anchor mode for drawing shapes
+	 *
+	 * @param vertical the vertical alignment option
+	 * @param horizontal the horizontal alignment option
+	 */
+	default void setAnchorMode(AnchorMode.Vertical vertical, AnchorMode.Horizontal horizontal)
+	{
+		setAnchorMode(new AnchorMode(vertical, horizontal));
+	}
+	
+	/**
+	 * Sets the anchor mode for drawing text
+	 *
+	 * @param mode the anchor mode to set
+	 */
+	void setTextAnchorMode(TextAnchorMode mode);
+	
+	/**
+	 * Sets the anchor mode for drawing text
+	 *
+	 * @param vertical the vertical alignment option
+	 * @param horizontal the horizontal alignment option
+	 */
+	default void setTextAnchorMode(TextAnchorMode.Vertical vertical, AnchorMode.Horizontal horizontal)
+	{
+		setTextAnchorMode(new TextAnchorMode(vertical, horizontal));
+	}
+	
+	/**
+	 * Sets the font to be used to render text
+	 *
+	 * @param font the font to use to render text
+	 */
+	void setFont(Font font);
+	
+	/**
+	 * Sets the size of the font to be used to render text
+	 *
+	 * @param size the new font size
+	 */
+	void setFontSize(float size);
+	
+	/**
+	 * Sets the style of the font to be used to render text
+	 *
+	 * @param style the new font style
+	 */
+	void setFontStyle(Font.Style style);
+	
+	/**
+	 * Draws a line with the currently set stroke options from one of the specified points to the other.
+	 * The given floating point values may get rounded down to integers by the implementation.
+	 *
+	 * @param x1 the X coordinate of the first point of the line
+	 * @param y1 the Y coordinate of the first point of the line
+	 * @param x2 the X coordinate of the second point of the line
+	 * @param y2 the Y coordinate of the second point of the line
+	 */
+	void drawLine(float x1, float y1, float x2, float y2);
+	
+	/**
+	 * Draws a line with the currently set stroke options from one of the specified points to the other.
+	 * The given floating point values may get rounded down to integers by the implementation.
+	 *
+	 * @param a the first point of the line to draw
+	 * @param b the second point of the line to draw
+	 */
+	default void drawLine(Vector2f a, Vector2f b)
+	{
+		drawLine(a.x, a.y, b.x, b.y);
+	}
+	
+	/**
 	 * Draws a rectangle with the currently set fill and stroke options.
 	 * The given floating point values may get rounded down to integers by the implementation.
 	 *
@@ -57,6 +132,19 @@ public interface RenderingContext
 	 * @see #setAnchorMode(AnchorMode) 
 	 */
 	void drawRect(float x, float y, float width, float height);
+	
+	/**
+	 * Draws a rectangle with the currently set fill and stroke options.
+	 * The given floating point values may get rounded down to integers by the implementation.
+	 *
+	 * @param anchor the anchor to draw the rectangle at (see: {@link #setAnchorMode(AnchorMode)})
+	 * @param dimensions the dimensions of the rectangle to draw where the X coordinate
+	 *                   represents the width and the Y coordinate represents the height
+	 */
+	default void drawRect(Vector2f anchor, Vector2f dimensions)
+	{
+		drawRect(anchor.x, anchor.y, dimensions.x, dimensions.y);
+	}
 	
 	/**
 	 * Draws an ellipse with the currently set fill and stroke options.
@@ -72,6 +160,19 @@ public interface RenderingContext
 	void drawEllipse(float x, float y, float width, float height);
 	
 	/**
+	 * Draws an ellipse with the currently set fill and stroke options.
+	 * The given floating point values may get rounded down to integers by the implementation.
+	 *
+	 * @param anchor the anchor to draw the rectangle at (see: {@link #setAnchorMode(AnchorMode)})
+	 * @param dimensions the dimensions of the bounding box of the ellipse to draw where
+	 *                   the X coordinate represents the width andthe Y coordinate represents the height
+	 */
+	default void drawEllipse(Vector2f anchor, Vector2f dimensions)
+	{
+		drawEllipse(anchor.x, anchor.y, dimensions.x, dimensions.y);
+	}
+	
+	/**
 	 * Draws a circle with the currently set fill and stroke options.
 	 * The given floating point values may get rounded down to integers by the implementation.
 	 *
@@ -82,13 +183,47 @@ public interface RenderingContext
 	 *
 	 * @param x the X coordinate of the anchor to draw the circle at
 	 * @param y the Y coordinate of the anchor to draw the circle at
-	 * @param diameter the diameter of the circle
+	 * @param radius the radius of the circle
 	 *
 	 * @see #drawEllipse(float, float, float, float)
 	 * @see #setAnchorMode(AnchorMode)
 	 */
-	default void drawCircle(float x, float y, float diameter)
+	default void drawCircle(float x, float y, float radius)
 	{
-		drawEllipse(x, y, diameter, diameter);
+		drawEllipse(x, y, radius * 2.0f, radius * 2.0f);
+	}
+	
+	/**
+	 * Draws a circle with the currently set fill and stroke options.
+	 * The given floating point values may get rounded down to integers by the implementation.
+	 *
+	 * @param anchor the anchor to draw the rectangle at (see: {@link #setAnchorMode(AnchorMode)})
+	 * @param radius the radius of the circle to draw
+	 *
+	 * @see #drawEllipse(float, float, float, float)
+	 */
+	default void drawCircle(Vector2f anchor, float radius)
+	{
+		drawCircle(anchor.x, anchor.y, radius);
+	}
+	
+	/**
+	 * Renders text with the currently set fill color
+	 *
+	 * @param x the X coordinate of the anchor to render the text at
+	 * @param y the Y coordinate of the anchor to render the text at
+	 * @param text the text to render
+	 */
+	void drawText(float x, float y, String text);
+	
+	/**
+	 * Renders text with the currently set fill color
+	 *
+	 * @param anchor the position of the anchor to draw the text at
+	 * @param text the text to draw
+	 */
+	default void drawText(Vector2f anchor, String text)
+	{
+		drawText(anchor.x, anchor.y, text);
 	}
 }

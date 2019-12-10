@@ -1,76 +1,132 @@
 package pl.michalwa.untitled.engine.graphics.render;
 
+import java.util.Objects;
 import pl.michalwa.untitled.engine.geom.Vector2f;
 
 /**
  * Defines the way to reference the location of a shape in the coordinate system
  */
-public enum AnchorMode
+public class AnchorMode
 {
 	/**
-	 * The anchor is located in the top-left corner of the shape's bounding box
+	 * Vertical alignment options
 	 */
-	TOP_LEFT(0.0f, 0.0f),
-	
-	/**
-	 * The anchor is located in the center of the top edge of the shape's bounding box
-	 */
-	TOP_CENTER(-0.5f, 0.0f),
-	
-	/**
-	 * The anchor is located in the top-right corner of the shape's bounding box
-	 */
-	TOP_RIGHT(-1.0f, 0.0f),
-	
-	/**
-	 * The anchor is located in the center of the left edge of the shape's bounding box
-	 */
-	CENTER_LEFT(0.0f, -0.5f),
-	
-	/**
-	 * The anchor is located in the center of the shape's bounding box
-	 */
-	CENTER(-0.5f, -0.5f),
-	
-	/**
-	 * The anchor is located in the center of the right edge of the shape's bounding box
-	 */
-	CENTER_RIGHT(-1.0f, -0.5f),
-	
-	/**
-	 * The anchor is located in the bottom-left corner of the shape's bounding box
-	 */
-	BOTTOM_LEFT(0.0f, -1.0f),
-	
-	/**
-	 * The anchor is located in the center of the bottom edge of the shape's bounding box
-	 */
-	BOTTOM_CENTER(-0.5f, 1.0f),
-	
-	/**
-	 * The anchor is located in the bottom-right corner of the shape's bounding box
-	 */
-	BOTTOM_RIGHT(-1.0f, -1.0f);
-	
-	/**
-	 * By how much the width will affect the location of the top-left corner of the bounding box
-	 */
-	private final float factorX;
-	
-	/**
-	 * By how much the height will affect the location of the top-left corner of the bounding box
-	 */
-	private final float factorY;
-	
-	AnchorMode(float factorX, float factorY)
+	public enum Vertical
 	{
-		this.factorX = factorX;
-		this.factorY = factorY;
+		/**
+		 * The anchor is located on the top edge of the bounding box
+		 */
+		TOP(0.0f),
+		
+		/**
+		 * The anchor is located on the horizontal line in the center of the bounding box
+		 */
+		CENTER(-0.5f),
+		
+		/**
+		 * The anchor is located on the bottom edge of the bounding box
+		 */
+		RIGHT(-1.0f);
+		
+		/**
+		 * How much the height of the bounding box affects the location of the top edge
+		 */
+		private final float factor;
+		
+		Vertical(float factor)
+		{
+			this.factor = factor;
+		}
+		
+		/**
+		 * Calculates the Y coordinate of the top edge of the bounding box of the object to draw
+		 *
+		 * @param y the Y coordinate of the anchor
+		 * @param height the height of the object
+		 *
+		 * @return the Y coordinate of the top edge of the bounding box of the object to draw
+		 */
+		public float getTop(float y, float height)
+		{
+			return y + height * factor;
+		}
 	}
 	
 	/**
-	 * Returns the coordinates of the top-left corner of the shape's bounding box
-	 * for the given anchor and dimensions considering the anchor mode
+	 * Horizontal alignment options
+	 */
+	public enum Horizontal
+	{
+		/**
+		 * The anchor is located on the left edge of the bounding box
+		 */
+		LEFT(0.0f),
+		
+		/**
+		 * The anchor is located on the vertical line in the center of the bounding box
+		 */
+		CENTER(-0.5f),
+		
+		/**
+		 * The anchor is located on the right edge of the bounding box
+		 */
+		RIGHT(-1.0f);
+		
+		/**
+		 * How much the width of the bounding box affects the location of the left edge
+		 */
+		private final float factor;
+		
+		Horizontal(float factor)
+		{
+			this.factor = factor;
+		}
+		
+		/**
+		 * Calculates the X coordinate of the left edge of the bounding box of the object to draw
+		 *
+		 * @param x the X coordinate of the anchor
+		 * @param width the width of the object
+		 *
+		 * @return the X coordinate of the left edge of the bounding box of the object to draw
+		 */
+		public float getLeft(float x, float width)
+		{
+			return x + width * factor;
+		}
+	}
+	
+	/**
+	 * The vertical alignment
+	 */
+	private final Vertical vertical;
+	
+	/**
+	 * The horizontal alignment
+	 */
+	private final Horizontal horizontal;
+	
+	/**
+	 * Constructs a new anchor mode with the given alignment options
+	 *
+	 * @param vertical the vertical alignment option
+	 * @param horizontal the horizontal alignment option
+	 */
+	public AnchorMode(Vertical vertical, Horizontal horizontal)
+	{
+		this.vertical = Objects.requireNonNull(vertical);
+		this.horizontal = Objects.requireNonNull(horizontal);
+	}
+	
+	/**
+	 * Calculates the coordinates of the top-left corner of the shape's bounding box
+	 * for the given anchor and dimensions considering the anchor mode.
+	 *
+	 * <p>
+	 * Equivalent of constructing a {@link Vector2f} of the results of calling
+	 * {@link Horizontal#getLeft(float, float)} with {@code anchorX}, {@code width}
+	 * and {@link Vertical#getTop(float, float)} with {@code anchorY}, {@code height}
+	 * </p>
 	 *
 	 * @param anchorX the X coordinate of the anchor
 	 * @param anchorY the Y coordinate of the anchor
@@ -81,6 +137,42 @@ public enum AnchorMode
 	 */
 	public Vector2f getTopLeft(float anchorX, float anchorY, float width, float height)
 	{
-		return new Vector2f(anchorX + width * factorX, anchorY + height * factorY);
+		return new Vector2f(horizontal.getLeft(anchorX, width), vertical.getTop(anchorY, height));
+	}
+	
+	/**
+	 * Returns the vertical alignment of this anchor mode
+	 *
+	 * @return the vertical alignment
+	 */
+	public Vertical getVertical()
+	{
+		return vertical;
+	}
+	
+	/**
+	 * Returns the horizontal alignment of this anchor mode
+	 *
+	 * @return the horizontal alignment
+	 */
+	public Horizontal getHorizontal()
+	{
+		return horizontal;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "AnchorMode(" + horizontal + ", " + vertical + ")";
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		return super.equals(obj)
+			
+			|| (obj instanceof AnchorMode
+			&& ((AnchorMode) obj).getVertical() == vertical
+			&& ((AnchorMode) obj).getHorizontal() == horizontal);
 	}
 }
