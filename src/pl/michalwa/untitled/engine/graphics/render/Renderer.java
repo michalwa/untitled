@@ -98,9 +98,18 @@ public class Renderer implements Component, RenderingContext
 		graphics.setRenderingHints(renderingHints);
 		
 		for(Layer l : layers) {
-			l.render(this);
 			
-			graphics.setClip(null);
+			// Reset context
+			fillColor = null;
+			strokeColor = null;
+			strokeWidth = 1.0f;
+			anchorMode = new AnchorMode(AnchorMode.Vertical.TOP, AnchorMode.Horizontal.LEFT);
+			textAnchorMode = new TextAnchorMode(TextAnchorMode.Vertical.BASE, AnchorMode.Horizontal.LEFT);
+			font = Font.defaultFont;
+			fontSize = 18.0f;
+			fontStyle = Font.Style.PLAIN;
+			
+			l.render(this);
 		}
 		
 		driver.display();

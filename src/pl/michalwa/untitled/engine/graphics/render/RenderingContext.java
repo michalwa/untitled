@@ -1,8 +1,10 @@
 package pl.michalwa.untitled.engine.graphics.render;
 
+import pl.michalwa.untitled.engine.geom.Vector2;
 import pl.michalwa.untitled.engine.geom.Vector2f;
 import pl.michalwa.untitled.engine.graphics.Color;
 import pl.michalwa.untitled.engine.graphics.font.Font;
+import pl.michalwa.untitled.engine.utils.As;
 
 /**
  * Provides rendering functionality
@@ -115,9 +117,10 @@ public interface RenderingContext
 	 * @param a the first point of the line to draw
 	 * @param b the second point of the line to draw
 	 */
-	default void drawLine(Vector2f a, Vector2f b)
+	default void drawLine(As<? extends Vector2> a, As<? extends Vector2> b)
 	{
-		drawLine(a.x, a.y, b.x, b.y);
+		Vector2f v1 = a.as().asVector2f(), v2 = b.as().asVector2f();
+		drawLine(v1.x, v1.y, v2.x, v2.y);
 	}
 	
 	/**
@@ -141,9 +144,10 @@ public interface RenderingContext
 	 * @param dimensions the dimensions of the rectangle to draw where the X coordinate
 	 *                   represents the width and the Y coordinate represents the height
 	 */
-	default void drawRect(Vector2f anchor, Vector2f dimensions)
+	default void drawRect(As<? extends Vector2> anchor, As<? extends Vector2> dimensions)
 	{
-		drawRect(anchor.x, anchor.y, dimensions.x, dimensions.y);
+		Vector2f anch = anchor.as().asVector2f(), dim = dimensions.as().asVector2f();
+		drawRect(anch.x, anch.y, dim.x, dim.y);
 	}
 	
 	/**
@@ -167,9 +171,10 @@ public interface RenderingContext
 	 * @param dimensions the dimensions of the bounding box of the ellipse to draw where
 	 *                   the X coordinate represents the width andthe Y coordinate represents the height
 	 */
-	default void drawEllipse(Vector2f anchor, Vector2f dimensions)
+	default void drawEllipse(As<? extends Vector2> anchor, As<? extends Vector2> dimensions)
 	{
-		drawEllipse(anchor.x, anchor.y, dimensions.x, dimensions.y);
+		Vector2f anch = anchor.as().asVector2f(), dim = dimensions.as().asVector2f();
+		drawEllipse(anch.x, anch.y, dim.x, dim.y);
 	}
 	
 	/**
@@ -202,9 +207,10 @@ public interface RenderingContext
 	 *
 	 * @see #drawEllipse(float, float, float, float)
 	 */
-	default void drawCircle(Vector2f anchor, float radius)
+	default void drawCircle(As<? extends Vector2> anchor, float radius)
 	{
-		drawCircle(anchor.x, anchor.y, radius);
+		Vector2f anch = anchor.as().asVector2f();
+		drawCircle(anch.x, anch.y, radius);
 	}
 	
 	/**
@@ -222,8 +228,9 @@ public interface RenderingContext
 	 * @param anchor the position of the anchor to draw the text at
 	 * @param text the text to draw
 	 */
-	default void drawText(Vector2f anchor, String text)
+	default void drawText(As<? extends Vector2> anchor, String text)
 	{
-		drawText(anchor.x, anchor.y, text);
+		Vector2f anch = anchor.as().asVector2f();
+		drawText(anch.x, anch.y, text);
 	}
 }

@@ -1,9 +1,11 @@
 package pl.michalwa.untitled.engine.geom;
 
+import pl.michalwa.untitled.engine.utils.As;
+
 /**
  * A 2d vector consisting of two coordinates which are 32-bit signed integers
  */
-public class Vector2i
+public class Vector2i implements Vector2, As<Vector2i>
 {
 	public static final Vector2i ZERO = new Vector2i(0, 0);
 	
@@ -36,9 +38,10 @@ public class Vector2i
 	 *
 	 * @return the sum of this vector and the given vector
 	 */
-	public Vector2i add(Vector2i other)
+	public Vector2i add(As<? extends Vector2i> other)
 	{
-		return add(other.x, other.y);
+		Vector2i v = other.as();
+		return add(v.x, v.y);
 	}
 	
 	/**
@@ -61,9 +64,10 @@ public class Vector2i
 	 *
 	 * @return the result of subtracting the given vector from this vector
 	 */
-	public Vector2i sub(Vector2i other)
+	public Vector2i sub(As<? extends Vector2i> other)
 	{
-		return sub(other.x, other.y);
+		Vector2i v = other.as();
+		return sub(v.x, v.y);
 	}
 	
 	/**
@@ -130,19 +134,21 @@ public class Vector2i
 			&& this.y == ((Vector2f) obj).y);
 	}
 	
-	/**
-	 * Returns a new {@link Vector2f} that has the same coordinates as this vector
-	 *
-	 * @return this vector as {@link Vector2f}
-	 */
-	public Vector2f toFloat()
-	{
-		return new Vector2f(this.x, this.y);
-	}
-	
 	@Override
 	public String toString()
 	{
 		return "[" + this.x + ", " + this.y + "]";
+	}
+	
+	@Override
+	public Vector2i as()
+	{
+		return this;
+	}
+	
+	@Override
+	public Vector2f asVector2f()
+	{
+		return new Vector2f(x, y);
 	}
 }

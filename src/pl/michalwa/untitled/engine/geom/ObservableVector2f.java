@@ -1,5 +1,6 @@
 package pl.michalwa.untitled.engine.geom;
 
+import pl.michalwa.untitled.engine.utils.As;
 import pl.michalwa.untitled.engine.utils.struct.Observable;
 
 /**
@@ -29,7 +30,7 @@ public class ObservableVector2f extends Observable<Vector2f>
 	 *
 	 * @param v the vector to add
 	 */
-	public void add(Vector2f v)
+	public void add(As<? extends Vector2f> v)
 	{
 		set(get().add(v));
 	}
@@ -52,7 +53,7 @@ public class ObservableVector2f extends Observable<Vector2f>
 	 *
 	 * @param v the vector to subtract
 	 */
-	public void sub(Vector2f v)
+	public void sub(As<? extends Vector2f> v)
 	{
 		set(get().sub(v));
 	}
@@ -89,6 +90,17 @@ public class ObservableVector2f extends Observable<Vector2f>
 	public void div(float k)
 	{
 		set(get().div(k));
+	}
+	
+	/**
+	 * Rotates the vector stored in this wrapper by the given angle.
+	 * Equivalent of calling {@code set(get().rotate(angle))}
+	 *
+	 * @param angle the angle to rotate by
+	 */
+	public void rotate(float angle)
+	{
+		set(get().rotate(angle));
 	}
 }
 

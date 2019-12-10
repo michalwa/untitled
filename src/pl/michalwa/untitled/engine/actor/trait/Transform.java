@@ -120,19 +120,25 @@ public class Transform extends Trait
 	 */
 	private void bindToParent()
 	{
+		// Bindings:
+		//
+		//     this.absolutePosition -> this.position          (x - parent.absolutePosition).rotate(-parent.absoluteRotation)
+		//     this.position         -> this.absolutePosition  (x.rotate(parent.absoluteRotation) + parent.absolutePosition)
+		//   parent.absolutePosition -> this.absolutePosition  (x + this.position.rotate(parent.absoluteRotation))
+		//   parent.absoluteRotation -> this.absolutePosition  (parent.absolutePosition + this.position.rotate(x))
+		//     this.absoluteRotation -> this.rotation          (x - parent.absoluteRotation)
+		//     this.rotation         -> this.absoluteRotation  (x + parent.absoluteRotation)
+		//   parent.absoluteRotation -> this.absoluteRotation  (x + this.rotation)
+		
 		if(parent == null) return;
 		
-		absolutePosition.bindTo(parent.absolutePosition, pos -> pos.add(position.get().rotate(parent.absoluteRotation.get())));
-		absolutePosition.bindTo(parent.absoluteRotation, rot -> parent.absolutePosition.get().add(position.get().rotate(rot)));
-		
-		absolutePosition.unbindTwoWay(position);
 		absolutePosition.bindTwoWay(position,
-			pos -> parent.absolutePosition.get().add(pos.rotate(parent.absoluteRotation.get())),
-			pos -> pos.sub(parent.absolutePosition.get()).rotate(-parent.absoluteRotation.get()));
-		
-		absoluteRotation.unbindTwoWay(rotation);
-		absoluteRotation.bindTo(parent.absoluteRotation, rotation, Float::sum);
-		rotation.bindTo(parent.absoluteRotation, absoluteRotation, (parentRot, absRot) -> absRot - parentRot);
+			x -> x.rotate(parent.absoluteRotation.get()).add(parent.absolutePosition),
+			x -> x.sub(parent.absolutePosition).rotate(-parent.absoluteRotation.get()));
+		absolutePosition.bindTo(parent.absolutePosition, x -> x.add(position.get().rotate(parent.absoluteRotation.get())));
+		absolutePosition.bindTo(parent.absoluteRotation, x -> parent.absolutePosition.get().add(position.get().rotate(x)));
+		absoluteRotation.bindTwoWay(rotation, x -> x + parent.absoluteRotation.get(), x -> x - parent.absoluteRotation.get());
+		absoluteRotation.bindTo(parent.absoluteRotation, x -> x + rotation.get());
 	}
 	
 	/**
@@ -145,11 +151,16 @@ public class Transform extends Trait
 			absolutePosition.unbindFrom(parent.absoluteRotation);
 			absoluteRotation.unbindFrom(parent.absoluteRotation);
 		}
-		
 		absolutePosition.unbindTwoWay(position);
-		absolutePosition.bindTwoWay(position);
+		absoluteRotation.unbindTwoWay(rotation);
 		
-		absoluteRotation.unbindFrom(rotation);
+		absolutePosition.bindTwoWay(position);
 		absoluteRotation.bindTwoWay(rotation);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Transform(" + position.get() + ", " + rotation.get() + ")";
 	}
 }

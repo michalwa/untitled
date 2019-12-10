@@ -1,11 +1,13 @@
 package pl.michalwa.untitled.engine.geom;
 
+import pl.michalwa.untitled.engine.utils.As;
+
 import static java.lang.Math.*;
 
 /**
  * A 2d vector consisting of two coordinates which are 32-bit floating point numbers
  */
-public class Vector2f
+public class Vector2f implements Vector2, As<Vector2f>
 {
 	public static final Vector2f ZERO = new Vector2f(0.0f, 0.0f);
 	
@@ -59,9 +61,10 @@ public class Vector2f
 	 *
 	 * @return the sum of this vector and the given vector
 	 */
-	public Vector2f add(Vector2f other)
+	public Vector2f add(As<? extends Vector2> other)
 	{
-		return add(other.x, other.y);
+		Vector2f v = other.as().asVector2f();
+		return add(v.x, v.y);
 	}
 	
 	/**
@@ -84,9 +87,10 @@ public class Vector2f
 	 *
 	 * @return the result of subtracting the given vector from this vector
 	 */
-	public Vector2f sub(Vector2f other)
+	public Vector2f sub(As<? extends Vector2> other)
 	{
-		return sub(other.x, other.y);
+		Vector2f v = other.as().asVector2f();
+		return sub(v.x, v.y);
 	}
 	
 	/**
@@ -133,9 +137,10 @@ public class Vector2f
 	 *
 	 * @return the dot product of this vector and the given vector
 	 */
-	public float dot(Vector2f other)
+	public float dot(As<? extends Vector2> other)
 	{
-		return this.x * other.x + this.y * other.y;
+		Vector2f v = other.as().asVector2f();
+		return this.x * v.x + this.y * v.y;
 	}
 	
 	/**
@@ -145,9 +150,10 @@ public class Vector2f
 	 *
 	 * @return the cross product of this vector and the given vector
 	 */
-	public float cross(Vector2f other)
+	public float cross(As<? extends Vector2f> other)
 	{
-		return this.x * other.y - this.y * other.x;
+		Vector2f v = other.as();
+		return this.x * v.y - this.y * v.x;
 	}
 	
 	/**
@@ -157,9 +163,10 @@ public class Vector2f
 	 *
 	 * @return the distance between the terminal point of this vector and the given vector
 	 */
-	public float distanceTo(Vector2f other)
+	public float distanceTo(As<? extends Vector2> other)
 	{
-		return other.sub(this).mag();
+		Vector2f v = other.as().asVector2f();
+		return v.sub(this).mag();
 	}
 	
 	/**
@@ -206,21 +213,22 @@ public class Vector2f
 	 *
 	 * @return the projection of this vector onto the given vector
 	 */
-	public Vector2f projectOnto(Vector2f other)
+	public Vector2f projectOnto(As<? extends Vector2> other)
 	{
 		// b * ((a * b) / |b|^2)
-		return other.mult(this.dot(other) / (other.x * other.x + other.y * other.y));
+		Vector2f v = other.as().asVector2f();
+		return v.mult(this.dot(v) / (v.x * v.x + v.y * v.y));
 	}
 	
 	/**
-	 * Returns a new {@link Vector2f} that has the same coordinates as this vector,
+	 * Returns a new {@link Vector2i} that has the same coordinates as this vector,
 	 * but cast to integers
 	 *
-	 * @return this vector as {@link Vector2f}
+	 * @return this vector as {@link Vector2i}
 	 */
-	public Vector2f toInt()
+	public Vector2i asVector2i()
 	{
-		return new Vector2f((int) this.x, (int) this.y);
+		return new Vector2i((int) this.x, (int) this.y);
 	}
 	
 	/**
@@ -255,5 +263,17 @@ public class Vector2f
 	public String toString()
 	{
 		return "[" + this.x + ", " + this.y + "]";
+	}
+	
+	@Override
+	public Vector2f as()
+	{
+		return this;
+	}
+	
+	@Override
+	public Vector2f asVector2f()
+	{
+		return this;
 	}
 }

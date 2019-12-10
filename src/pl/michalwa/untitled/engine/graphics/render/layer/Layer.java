@@ -1,11 +1,12 @@
 package pl.michalwa.untitled.engine.graphics.render.layer;
 
+import pl.michalwa.untitled.engine.graphics.render.Renderable;
 import pl.michalwa.untitled.engine.graphics.render.RenderingContext;
 
 /**
  * Renderer layer - used to group and sort drawable content
  */
-public abstract class Layer implements Comparable<Layer>
+public abstract class Layer implements Comparable<Layer>, Renderable
 {
 	/**
 	 * Sorting index
@@ -43,5 +44,6 @@ public abstract class Layer implements Comparable<Layer>
 	 *
 	 * @param ctx the rendering context
 	 */
+	@Override
 	public abstract void render(RenderingContext ctx);
 }

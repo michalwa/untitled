@@ -148,7 +148,7 @@ public class Actor extends EventDispatcher
 	 */
 	public <T extends Trait> List<T> findAllInDescendants(Class<T> type)
 	{
-		return Stream.of(
+		return Stream.concat(
 			
 			children.stream()
 				.map(c -> c.getTrait(type))
@@ -158,7 +158,6 @@ public class Actor extends EventDispatcher
 			children.stream()
 				.flatMap(c -> c.findAllInDescendants(type).stream()))
 			
-			.flatMap(Function.identity())
 			.collect(Collectors.toList());
 	}
 	

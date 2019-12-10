@@ -1,5 +1,6 @@
 package pl.michalwa.untitled.engine.geom;
 
+import pl.michalwa.untitled.engine.utils.As;
 import pl.michalwa.untitled.engine.utils.struct.Observable;
 
 /**
@@ -29,7 +30,7 @@ public class ObservableVector2i extends Observable<Vector2i>
 	 *
 	 * @param v the vector to add
 	 */
-	public void add(Vector2i v)
+	public void add(As<? extends Vector2i> v)
 	{
 		set(get().add(v));
 	}
@@ -40,7 +41,7 @@ public class ObservableVector2i extends Observable<Vector2i>
 	 *
 	 * @param v the vector to subtract
 	 */
-	public void sub(Vector2i v)
+	public void sub(As<? extends Vector2i> v)
 	{
 		set(get().sub(v));
 	}
